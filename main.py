@@ -1,3 +1,4 @@
+#!/usr/bin/python3.7
 import pygame as pg
 from scripts import *
 from objects import *
@@ -29,6 +30,7 @@ class Game:
 		self.void = pg.sprite.Group()
 		self.floortiles = pg.sprite.Group()
 		self.grass = pg.sprite.Group()
+		self.ui = pg.sprite.LayeredUpdates()
 		# ──────────────────────────────────────────────────
 
 		self.player = null
@@ -39,6 +41,14 @@ class Game:
 		self.draw_debug = false
 		self.area = []
 		self.old_area = []
+
+
+		# UI ELEMENTS ̣──────────────────────────────────────
+		self.hotbar = Hotbar(self)
+		self.hb_pointer = HotbarPointer(self)
+		# ──────────────────────────────────────────────────
+
+
 
 	# Load the blocks and items from the chunk given by the ChunkManager loader
 	def load_chunk(self, data):
@@ -98,6 +108,15 @@ class Game:
 				if item.pos == void.pos:
 					item.kill()
 
+	def hit_items(self):
+		hits = pg.sprite.spritecollide(self.player, self.items, false)
+		if hits:
+			for slot in self.player.hotbar:
+				if self.player.hotbar[slot] == null:
+					self.player.hotbar[slot] = hits[0].item
+					hits[0].kill()
+					break
+
 	# Call each function in the correct order for the game to run properly
 	def run(self):
 		if self.playing:
@@ -118,6 +137,10 @@ class Game:
 
 		# Call update() on all sprites
 		self.all_sprites.update()
+		self.ui.update()
+
+		# Show FPS for debbugging purposes
+		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
 		# Move the camera to the player
 		self.camera.update(self.player)
@@ -138,6 +161,8 @@ class Game:
 			self.old_area = self.area
 			self.reload_chunks()
 
+		self.hit_items()
+
 		# Update the screen
 		pg.display.update()
 
@@ -156,10 +181,17 @@ class Game:
 		for sprite in self.all_sprites:
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
 			if self.draw_debug:
-				if sprite != self.player:
+				if sprite != self.player and sprite not in self.void:
 					pg.draw.rect(self.screen, LIGHTGREY, self.camera.apply_rect(sprite.rect), 2)
+
+
+				# Draw the player's hitbox (white) and it's position (red)
+				pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(self.player.hit_rect), 2)
 				pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(self.player.rect), 2)
 				pg.draw.rect(self.screen, RED, self.camera.apply_rect(pg.Rect(*self.player.pos, 4, 4)))
+
+		for object in self.ui:
+			self.screen.blit(object.image, self.camera.apply(object))
 
 	#Recieve some input for basic general control
 	def events(self):
@@ -172,6 +204,22 @@ class Game:
 					sys.exit()
 				if event.key == pg.K_h:
 					self.draw_debug = not self.draw_debug
+
+				if event.key == pg.K_1:
+					if self.player.selected_slot == 0:
+						self.player.selected_slot = -1
+					else:
+						self.player.selected_slot = 0
+				if event.key == pg.K_2:
+					if self.player.selected_slot == 1:
+						self.player.selected_slot = -1
+					else:
+						self.player.selected_slot = 1
+				if event.key == pg.K_3:
+					if self.player.selected_slot == 2:
+						self.player.selected_slot = -1
+					else:
+						self.player.selected_slot = 2
 
 #Main loop
 g = Game()

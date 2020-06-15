@@ -33,7 +33,7 @@ TILESIZE = 48
 TILEWIDTH = int(WIDTH / TILESIZE)
 TILEHEIGHT = int(HEIGHT / TILESIZE)
 
-FPS = 60
+FPS = 120
 
 MAXSEEDS = 100
 seedgen=random.randint(-MAXSEEDS, MAXSEEDS)
@@ -44,13 +44,15 @@ CHUNKSIZE = 4
 CHUNKTILESIZE = CHUNKSIZE * TILESIZE
 CHUNKRENDER = 2
 CHUNKRENDERX = 3
-CHUNKRENDERY = 2
+CHUNKRENDERY = 3
 XLIMIT = 2 * CHUNKTILESIZE
 YLIMIT = 2 * CHUNKTILESIZE
 savetimer = 1000
+
 # Player settings
 PLAYER_SPEED = 250
 PLAYER_DEFAULT_SPAWN = (9996, 10000)
+PLAYER_HITRECT = pg.Rect(TILESIZE, TILESIZE, 32, 24)
 
 #layers
 PLAYER_LAYER = 3
@@ -58,5 +60,17 @@ ITEM_LAYER = 2
 
 
 
+# Item settings
+BOB_RANGE = 16
+BOB_SPEED = 0.8
 
-voidspeed = 100
+
+
+# Colliding function
+
+def collide_hit_rect(one, two):
+	return one.hit_rect.colliderect(two.rect)
+
+
+# UI settings
+UI_MARGIN = 10
