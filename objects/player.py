@@ -82,10 +82,12 @@ class Player(pg.sprite.Sprite):
 			self.image = self.img
 
 		self.hit_rect.centerx = self.pos.x
-		collide_with_walls(self, self.game.collidables, 'x')
+		if PLAYER_COLLIDE:
+			collide_with_walls(self, self.game.collidables, 'x')
 
 		self.hit_rect.y = self.pos.y + self.hitrect_offset
-		collide_with_walls(self, self.game.collidables, 'y')
+		if PLAYER_COLLIDE:
+			collide_with_walls(self, self.game.collidables, 'y')
 
 		self.rect.center = self.pos
 
