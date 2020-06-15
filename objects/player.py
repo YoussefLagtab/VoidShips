@@ -33,7 +33,8 @@ class Player(pg.sprite.Sprite):
 		self.groups = game.all_sprites
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = PLAYER_IMG
+		self.img = PLAYER_IMG
+		self.image = self.img
 		self.rect = self.image.get_rect()
 		self.hit_rect = PLAYER_HITRECT
 		self.hitrect_offset = 12
@@ -42,11 +43,15 @@ class Player(pg.sprite.Sprite):
 		self.tilepos = vec(int(self.pos.x / TILESIZE), int(self.pos.y / TILESIZE))
 		self.chunkpos = self.tilepos * CHUNKSIZE
 		self.name = "Chris"
+
+		# Inventory ─────────────────────────────────────────────────────────────────────────────────────
 		self.selected_slot = 0
 		self.hotbar = {0 : null, 1 : null, 2 : null}
 		self.hotbar_display = {0 : null, 1 : null, 2 : null}
 		self.inventory = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
 		self.inventory_display = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
+		self.holding = null
+		# ───────────────────────────────────────────────────────────────────────────────────────────────
 
 	# Get input for player movement
 	def get_keys(self):
@@ -70,6 +75,11 @@ class Player(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.center = self.pos
 		self.pos += self.vel * self.game.delta
+
+		if self.vel.x < 0:
+			self.image = pg.transform.flip(self.img, true, false)
+		if self.vel.x > 0:
+			self.image = self.img
 
 		self.hit_rect.centerx = self.pos.x
 		collide_with_walls(self, self.game.collidables, 'x')

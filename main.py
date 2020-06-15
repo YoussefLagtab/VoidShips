@@ -31,6 +31,7 @@ class Game:
 		self.floortiles = pg.sprite.Group()
 		self.grass = pg.sprite.Group()
 		self.ui = pg.sprite.LayeredUpdates()
+		self.placeholders = pg.sprite.Group()
 		# ──────────────────────────────────────────────────
 
 		self.player = null
@@ -48,7 +49,7 @@ class Game:
 		self.hb_pointer = HotbarPointer(self)
 		# ──────────────────────────────────────────────────
 
-
+		self.ui.update()
 
 	# Load the blocks and items from the chunk given by the ChunkManager loader
 	def load_chunk(self, data):
@@ -139,6 +140,7 @@ class Game:
 		self.all_sprites.update()
 		self.ui.update()
 
+
 		# Show FPS for debbugging purposes
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
@@ -206,16 +208,19 @@ class Game:
 					self.draw_debug = not self.draw_debug
 
 				if event.key == pg.K_1:
+					self.ui.update()
 					if self.player.selected_slot == 0:
 						self.player.selected_slot = -1
 					else:
 						self.player.selected_slot = 0
 				if event.key == pg.K_2:
+					self.ui.update()
 					if self.player.selected_slot == 1:
 						self.player.selected_slot = -1
 					else:
 						self.player.selected_slot = 1
 				if event.key == pg.K_3:
+					self.ui.update()
 					if self.player.selected_slot == 2:
 						self.player.selected_slot = -1
 					else:
