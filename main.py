@@ -87,22 +87,17 @@ class Game:
 	# Update the map
 	def reload_chunks(self):
 		# Define render area
-		for cname in self.area:
-			chunk = tuple(cname.split(','))
-			cx = int(chunk[0])
-			cy = int(chunk[1])
-			if cname not in chunkmanager.get_chunks():
-				chunkmanager.generate(cx, cy)
-			self.load_chunk(chunkmanager.load(cx, cy))
+		for chunk in self.area:
+			if chunk not in chunkmanager.get_chunks():
+				chunkmanager.generate(chunk[0], chunk[1])
+			self.load_chunk(chunkmanager.load(chunk[0], chunk[1]))
 
-		for cname in chunkmanager.get_chunks():
-			chunk = cname.split(',')
-			chunk = (int(chunk[0]), int(chunk[1]))
-			if cname not in self.area and cname in chunkmanager.get_loaded():
+		for chunk in chunkmanager.get_chunks():
+			if chunk not in self.area and chunk in chunkmanager.get_loaded():
 				for sprite in self.all_sprites:
 					if sprite != self.player and sprite.chunkpos == chunk:
 						sprite.kill()
-				chunkmanager.unload(cname)
+				chunkmanager.unload(chunk)
 
 		for item in self.items:
 			for void in self.void:
@@ -155,8 +150,8 @@ class Game:
 			for x in range(-CHUNKRENDERX, CHUNKRENDERX + 1):
 				cx = int(px + x)
 				cy = int(py + y)
-				cname = str(cx) + ',' + str(cy)
-				self.area.append(cname)
+				chunkname = (cx, cy)
+				self.area.append(chunkname)
 
 		# Call the chunks to reload when the area changes
 		if self.area != self.old_area:

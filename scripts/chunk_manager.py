@@ -18,7 +18,7 @@ class Chunk():
 			self.chunks = eval(file)
 		f.close()
 		self.loaded = []
-		self.chunkname = str()
+		self.chunk = tuple()
 		self.unsaved = int()
 
 	def get_chunks(self):
@@ -46,10 +46,10 @@ class Chunk():
 
 		floor = str()
 		items = str()
-		chunkname = str(chunkx) + "," + str(chunky)
+		chunk = (chunkx, chunky)
 
-		if chunkname not in self.chunks:
-			# print("Generating chunk at {}".format(chunkname))
+		if chunk not in self.chunks:
+			# print("Generating chunk at {}".format(chunk))
 			for y in range(chunky * CHUNKSIZE, chunky * CHUNKSIZE + CHUNKSIZE):
 				for x in range(chunkx * CHUNKSIZE, chunkx * CHUNKSIZE + CHUNKSIZE):
 					i = round(noise.pnoise2(x / 15, y / 15, octaves = oct), 5)
@@ -76,10 +76,10 @@ class Chunk():
 				floor += ":"
 				items += ':'
 
-			self.chunks.update({chunkname : {"floor" : floor, "items" : items}})
+			self.chunks.update({chunk : {"floor" : floor, "items" : items}})
 			self.unsaved += 1
 		# else:
-		# 	print("Chunk at {} has already been generated".format(chunkname))
+		# 	print("Chunk at {} has already been generated".format(chunk))
 
 
 
@@ -104,22 +104,22 @@ class Chunk():
 
 	# Load chunk at given coordinates
 	def load(self, chunkx, chunky):
-		cname = str(chunkx) + ',' + str(chunky)
+		chunk = (chunkx, chunky)
 
-		if cname not in self.chunks:
+		if chunk not in self.chunks:
 			print("Chunk at {} does not exist".format(cname))
 		else:
-			if cname not in self.loaded:
+			if chunk not in self.loaded:
 
 				# Add the chunk to the loaded chunks list
-				self.loaded.append(cname)
+				self.loaded.append(chunk)
 				# print("Loading chunk at {}".format(cname))
 				data = []
 				floordata = []
 				itemdata = []
 
 				# Select the chunk acording to the coordinates given
-				chunktoload = self.chunks[cname]
+				chunktoload = self.chunks[chunk]
 
 
 				# Generate a data bundle so it can be passed to the map loader

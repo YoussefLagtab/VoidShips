@@ -39,6 +39,8 @@ class Hotbar(pg.sprite.Sprite):
 				self.player.holding.image = pg.transform.flip(ITEMS[self.player.hotbar[self.player.selected_slot]], true, false)
 			if self.game.player.vel.x < 0:
 				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]]
+			else:
+				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]]
 		elif self.player.selected_slot != -1 and not self.player.hotbar[self.player.selected_slot]:
 			self.player.holding.image = pg.Surface((1,1))
 		elif self.player.holding and self.player.selected_slot == -1:
