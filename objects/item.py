@@ -14,10 +14,11 @@ class Item(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.x = x
 		self.y = y
+		self.tilepos = (x,y)
 		self.pos = vec(x, y) * TILESIZE
 		self.rect.centerx = self.pos.x + TILESIZE/2
 		self.rect.centery = self.pos.y + TILESIZE/2
-		self.chunkpos = vec(int(x / CHUNKSIZE), int(y / CHUNKSIZE))
+		self.chunkpos = (int(x / CHUNKSIZE), int(y / CHUNKSIZE))
 		self.tween = tween.easeInOutSine
 		self.dir = 1
 		self.step = 0

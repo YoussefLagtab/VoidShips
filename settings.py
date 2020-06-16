@@ -51,14 +51,14 @@ savetimer = 1000
 
 # Player settings
 PLAYER_SPEED = 250
-PLAYER_DEFAULT_SPAWN = (100, 100)
+PLAYER_DEFAULT_SPAWN = (184, 227)
 PLAYER_HITRECT = pg.Rect(TILESIZE, TILESIZE, 32, 24)
 PLAYER_COLLIDE = false
 
 #layers
 PLAYER_LAYER = 3
 ITEM_LAYER = 2
-
+DEFAULT_NAME = "Chris"
 
 
 # Item settings

@@ -2,6 +2,7 @@ import pygame as pg
 from settings import *
 from textures import *
 from settings import collide_hit_rect
+import pickle
 
 def collide_with_walls(sprite, group, dir):
 	if dir == 'x':
@@ -42,18 +43,65 @@ class Player(pg.sprite.Sprite):
 		self.pos = vec(x, y) * TILESIZE
 		self.tilepos = vec(int(self.pos.x / TILESIZE), int(self.pos.y / TILESIZE))
 		self.chunkpos = self.tilepos * CHUNKSIZE
-		self.name = "Chris"
-
-		# Inventory ─────────────────────────────────────────────────────────────────────────────────────
-		self.selected_slot = 0
-		self.hotbar = {0 : {'item': null, 'count' : 0}, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}}
-		self.hotbar_display = {0 : null, 1 : null, 2 : null}
-		self.inventory = {0 : null, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}, 3 : {'item': null, 'count' : 0}, 4 : {'item': null, 'count' : 0}, 5 : {'item': null, 'count' : 0}, 6 : {'item': null, 'count' : 0}}
-		self.inventory_display = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
+		self.name = DEFAULT_NAME
 		self.holding = null
+		self.hotbar_display = {0 : null, 1 : null, 2 : null}
+		self.inventory_display = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
+		self.selected_slot = 0
+
+
+		try:
+			with open("player.data", 'r') as f:
+				self.playerdata = eval(f.read())
+				print("Loading player data")
+		except:
+			with open('player.data', 'w') as f:
+				print("Creating player data")
+				# Create new inventory ──────────────────────────────────────────────────────────────────────────
+				self.selected_slot = 0
+				self.hotbar = {0 : {'item': null, 'count' : 0}, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}}
+				self.inventory = {0 : null, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}, 3 : {'item': null, 'count' : 0}, 4 : {'item': null, 'count' : 0}, 5 : {'item': null, 'count' : 0}, 6 : {'item': null, 'count' : 0}}
+				# ───────────────────────────────────────────────────────────────────────────────────────────────
+				self.playerdata = {
+				'pos' : self.pos,
+				'name' : self.name,
+				'selected_slot' : self.selected_slot,
+				'hotbar' : self.hotbar,
+				'hb_display' : self.hotbar_display,
+				'inventory' : self.inventory,
+				'inv_display' : self.inventory_display,
+				'holding' : self.holding
+				}
+				f.write(str(self.playerdata))
+
+
+		self.pos = vec(self.playerdata['pos'])
+		self.tilepos = vec(int(self.pos.x / TILESIZE), int(self.pos.y / TILESIZE))
+		self.chunkpos = self.tilepos * CHUNKSIZE
+		self.name = self.playerdata['name']
+		# Load inventory ────────────────────────────────────────────────────────────────────────────────
+		self.selected_slot = self.playerdata['selected_slot']
+		self.hotbar = self.playerdata['hotbar']
+		self.inventory = self.playerdata['inventory']
 		# ───────────────────────────────────────────────────────────────────────────────────────────────
 
-		
+
+	# Save the player's data
+	def save_data(self):
+		print('Saving player data')
+		self.playerdata.update(
+		{
+		'pos' : tuple(self.pos),
+		'name' : self.name,
+		'selected_slot' : self.selected_slot,
+		'hotbar' : self.hotbar,
+		'inventory' : self.inventory
+		})
+		print(self.playerdata)
+		with open("player.data", "w") as f:
+			f.seek(0)
+			f.truncate()
+			f.write(str(self.playerdata))
 
 	# Get input for player movement
 	def get_keys(self):
@@ -73,7 +121,7 @@ class Player(pg.sprite.Sprite):
 
 	# Update the player values
 	def update(self):
-
+		self.save_data()
 		self.get_keys()
 		self.rect = self.image.get_rect()
 		self.rect.center = self.pos

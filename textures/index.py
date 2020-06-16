@@ -17,6 +17,6 @@ UI = 	{
 	'pinv' : pg.image.load("textures/UI/Inventory/inventory.png"),
 	'HUD' : {
 			'hotbar' : pg.image.load("textures/UI/HUD/hotbar.png"),
-			'hb_pointer' : pg.image.load("textures/UI/HUD/hotbar_pointer.png")
+			'hb_pointer' : pg.image.load("textures/UI/HUD/hb_pointer.png")
 	}
 }

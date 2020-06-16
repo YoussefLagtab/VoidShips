@@ -108,6 +108,7 @@ class Game:
 				if item.pos == void.pos:
 					item.kill()
 
+	# Detect collision with items
 	def hit_items(self):
 		hits = pg.sprite.spritecollide(self.player, self.items, false)
 		if hits:
@@ -115,10 +116,12 @@ class Game:
 				if not self.player.hotbar[slot]['item']:
 					self.player.hotbar[slot]['item'] = hits[0].item
 					self.player.hotbar[slot]['count'] += 1
+					chunkmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
 					hits[0].kill()
 					break
 				elif self.player.hotbar[slot]['item'] == hits[0].item and self.player.hotbar[slot]['count'] < MAXITEMS:
 					self.player.hotbar[slot]['count'] += 1
+					chunkmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
 					hits[0].kill()
 					break
 
@@ -143,8 +146,7 @@ class Game:
 		# Call update() on all sprites
 		self.all_sprites.update()
 		self.ui.update()
-
-
+		
 		# Show FPS for debbugging purposes
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
@@ -202,7 +204,6 @@ class Game:
 
 		for ph in self.placeholders:
 			self.screen.blit(ph.image, ph.rect.topleft)
-		print(len(self.placeholders))
 
 		hotbarlabel1 = self.hotbarFont.render(str(self.player.hotbar[0]["count"]), 1, WHITE)
 		hotbarlabel2 = self.hotbarFont.render(str(self.player.hotbar[1]["count"]), 1, WHITE)
