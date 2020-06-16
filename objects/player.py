@@ -46,12 +46,14 @@ class Player(pg.sprite.Sprite):
 
 		# Inventory ─────────────────────────────────────────────────────────────────────────────────────
 		self.selected_slot = 0
-		self.hotbar = {0 : null, 1 : null, 2 : null}
+		self.hotbar = {0 : {'item': null, 'count' : 0}, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}}
 		self.hotbar_display = {0 : null, 1 : null, 2 : null}
-		self.inventory = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
+		self.inventory = {0 : null, 1 : {'item': null, 'count' : 0}, 2 : {'item': null, 'count' : 0}, 3 : {'item': null, 'count' : 0}, 4 : {'item': null, 'count' : 0}, 5 : {'item': null, 'count' : 0}, 6 : {'item': null, 'count' : 0}}
 		self.inventory_display = {0 : null, 1 : null, 2 : null, 3 : null, 4 : null, 5 : null, 6 : null}
 		self.holding = null
 		# ───────────────────────────────────────────────────────────────────────────────────────────────
+
+		
 
 	# Get input for player movement
 	def get_keys(self):
@@ -71,6 +73,7 @@ class Player(pg.sprite.Sprite):
 
 	# Update the player values
 	def update(self):
+
 		self.get_keys()
 		self.rect = self.image.get_rect()
 		self.rect.center = self.pos

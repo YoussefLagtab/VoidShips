@@ -49,6 +49,10 @@ class Game:
 		self.hb_pointer = HotbarPointer(self)
 		# ──────────────────────────────────────────────────
 
+		# Fonts ────────────────────────
+		self.hotbarFont = pg.font.Font("textures/fonts/ttp.otf", 10)
+		# ──────────────────────────────
+
 		self.ui.update()
 
 	# Load the blocks and items from the chunk given by the ChunkManager loader
@@ -108,8 +112,13 @@ class Game:
 		hits = pg.sprite.spritecollide(self.player, self.items, false)
 		if hits:
 			for slot in self.player.hotbar:
-				if self.player.hotbar[slot] == null:
-					self.player.hotbar[slot] = hits[0].item
+				if not self.player.hotbar[slot]['item']:
+					self.player.hotbar[slot]['item'] = hits[0].item
+					self.player.hotbar[slot]['count'] += 1
+					hits[0].kill()
+					break
+				elif self.player.hotbar[slot]['item'] == hits[0].item and self.player.hotbar[slot]['count'] < MAXITEMS:
+					self.player.hotbar[slot]['count'] += 1
 					hits[0].kill()
 					break
 
@@ -187,8 +196,24 @@ class Game:
 				pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(self.player.rect), 2)
 				pg.draw.rect(self.screen, RED, self.camera.apply_rect(pg.Rect(*self.player.pos, 4, 4)))
 
-		for object in self.ui:
-			self.screen.blit(object.image, self.camera.apply(object))
+
+		self.screen.blit(self.hotbar.image, self.hotbar.rect.topleft)
+		self.screen.blit(self.hb_pointer.image, self.hb_pointer.rect.topleft)
+
+		for ph in self.placeholders:
+			self.screen.blit(ph.image, ph.rect.topleft)
+		print(len(self.placeholders))
+
+		hotbarlabel1 = self.hotbarFont.render(str(self.player.hotbar[0]["count"]), 1, WHITE)
+		hotbarlabel2 = self.hotbarFont.render(str(self.player.hotbar[1]["count"]), 1, WHITE)
+		hotbarlabel3 = self.hotbarFont.render(str(self.player.hotbar[2]["count"]), 1, WHITE)
+
+		if self.player.hotbar[0]['count'] > 1:
+			self.screen.blit(hotbarlabel1, self.hotbar.hblabel1)
+		if self.player.hotbar[1]['count'] > 1:
+			self.screen.blit(hotbarlabel2, self.hotbar.hblabel2)
+		if self.player.hotbar[2]['count'] > 1:
+			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
 
 	#Recieve some input for basic general control
 	def events(self):
