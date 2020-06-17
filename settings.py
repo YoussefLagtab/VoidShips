@@ -35,30 +35,48 @@ TILEHEIGHT = int(HEIGHT / TILESIZE)
 
 FPS = 120
 
-MAXSEEDS = 100
-seedgen=random.randint(-MAXSEEDS, MAXSEEDS)
+# Player settings
+PLAYER_SPEED = 250
+PLAYER_DEFAULT_SPAWN = (100000, 100000)
+PLAYER_HITRECT = pg.Rect(TILESIZE, TILESIZE, 32, 24)
+PLAYER_COLLIDE = false
+PLAYER_DEFAULT_NAME = "Chris"
+
+# World settings
+MAXSEED = 11142780
+seedgen=random.randint(-MAXSEED, MAXSEED)
 ammount = 5
 MAPSIZEX = 64
 MAPSIZEY = 64
 CHUNKSIZE = 4
 CHUNKTILESIZE = CHUNKSIZE * TILESIZE
-CHUNKRENDER = 2
-CHUNKRENDERX = 3
-CHUNKRENDERY = 3
+CHUNKRENDER = 3
+DEFAULT_WORLD_NAME = 'EMPTY'
+RESET_MAP = true
+
+DEFAULT_WORLD_FORMAT = {
+"world_name" : str(),
+"seed" : int(),
+"map" : dict(),
+"player" : {
+	"pos" : PLAYER_DEFAULT_SPAWN,
+	"name" : PLAYER_DEFAULT_NAME,
+	"selected_slot" : -1,
+	"hotbar" : {0 : {"item": null, "count" : 0}, 1 : {"item": null, "count" : 0}, 2 : {"item": null, "count" : 0}},
+	"inventory" : {0 : null, 1 : {"item": null, "count" : 0}, 2 : {"item": null, "count" : 0}, 3 : {"item": null, "count" : 0}, 4 : {"item": null, "count" : 0}, 5 : {"item": null, "count" : 0}, 6 : {"item": null, "count" : 0}}
+	}
+}
+
 XLIMIT = 2 * CHUNKTILESIZE
 YLIMIT = 2 * CHUNKTILESIZE
 savetimer = 1000
 
-# Player settings
-PLAYER_SPEED = 250
-PLAYER_DEFAULT_SPAWN = (184, 227)
-PLAYER_HITRECT = pg.Rect(TILESIZE, TILESIZE, 32, 24)
-PLAYER_COLLIDE = false
+
 
 #layers
 PLAYER_LAYER = 3
 ITEM_LAYER = 2
-DEFAULT_NAME = "Chris"
+
 
 
 # Item settings

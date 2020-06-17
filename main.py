@@ -3,7 +3,7 @@ import pygame as pg
 from scripts import *
 from objects import *
 from textures import *
-from chunk_manager import *
+import pickle
 
 class Game:
 
@@ -53,9 +53,25 @@ class Game:
 		self.hotbarFont = pg.font.Font("textures/fonts/ttp.otf", 10)
 		# ──────────────────────────────
 
-		self.ui.update()
 
-	# Load the blocks and items from the chunk given by the ChunkManager loader
+
+		name = input("Enter world name: ")
+		try:
+			with open("worlds/"+name+".data", 'rb') as f:
+				self.world_data = pickle.load(f)
+			self.worldmanager = WorldManager(self.world_data['map'], self.world_data['seed'], self.world_data["world_name"])
+
+		except:
+			with open("worlds/"+name+".data", 'wb') as f:
+				self.world_data = DEFAULT_WORLD_FORMAT
+				pickle.dump(self.world_data, f)
+
+			self.worldmanager = WorldManager(self.world_data['map'], null, name)
+
+		self.player.load_data(self.world_data["player"])
+
+
+	# Load the blocks and items from the chunk given by the worldmanager loader
 	def load_chunk(self, data):
 		if data != null:
 			#parse the data
@@ -68,12 +84,12 @@ class Game:
 				tile = i[0]
 				x = i[1]
 				y = i[2]
-				if tile == '.':
+				if tile == ".":
 					Void(self, x, y)
-				if tile == '#':
-					Block(self, x, y, 'grass')
-				if tile == '@':
-					Block(self, x, y, 'mountain')
+				if tile == "#":
+					Block(self, x, y, "grass")
+				if tile == "@":
+					Block(self, x, y, "mountain")
 
 			for i in items:
 				item = i[0]
@@ -81,27 +97,29 @@ class Game:
 				y = i[2]
 				if item == "A":
 					Item(self, x, y, "heart")
-				if item == 'i':
+				if item == "i":
 					Item(self, x, y, "stone")
 
 	# Save the game
 	def save(self):
-		chunkmanager.save()
+		self.world_data.update({"world_name" : self.worldmanager.get_name(), "seed" : self.worldmanager.get_seed(), "map" : self.worldmanager.save(), "player" : self.player.save_data()})
+		with open("worlds/"+self.worldmanager.get_name() +".data", "wb") as f:
+			pickle.dump(self.world_data, f)
 
 	# Update the map
 	def reload_chunks(self):
 		# Define render area
 		for chunk in self.area:
-			if chunk not in chunkmanager.get_chunks():
-				chunkmanager.generate(chunk[0], chunk[1])
-			self.load_chunk(chunkmanager.load(chunk[0], chunk[1]))
+			if chunk not in self.worldmanager.get_chunks():
+				self.worldmanager.generate(chunk[0], chunk[1])
+			self.load_chunk(self.worldmanager.load(chunk[0], chunk[1]))
 
-		for chunk in chunkmanager.get_chunks():
-			if chunk not in self.area and chunk in chunkmanager.get_loaded():
+		for chunk in self.worldmanager.get_chunks():
+			if chunk not in self.area and chunk in self.worldmanager.get_loaded():
 				for sprite in self.all_sprites:
 					if sprite != self.player and sprite.chunkpos == chunk:
 						sprite.kill()
-				chunkmanager.unload(chunk)
+				self.worldmanager.unload(chunk)
 
 		for item in self.items:
 			for void in self.void:
@@ -113,15 +131,15 @@ class Game:
 		hits = pg.sprite.spritecollide(self.player, self.items, false)
 		if hits:
 			for slot in self.player.hotbar:
-				if not self.player.hotbar[slot]['item']:
-					self.player.hotbar[slot]['item'] = hits[0].item
-					self.player.hotbar[slot]['count'] += 1
-					chunkmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
+				if not self.player.hotbar[slot]["item"]:
+					self.player.hotbar[slot]["item"] = hits[0].item
+					self.player.hotbar[slot]["count"] += 1
+					self.worldmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
 					hits[0].kill()
 					break
-				elif self.player.hotbar[slot]['item'] == hits[0].item and self.player.hotbar[slot]['count'] < MAXITEMS:
-					self.player.hotbar[slot]['count'] += 1
-					chunkmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
+				elif self.player.hotbar[slot]["item"] == hits[0].item and self.player.hotbar[slot]["count"] < MAXITEMS:
+					self.player.hotbar[slot]["count"] += 1
+					self.worldmanager.kill_item(hits[0].chunkpos, hits[0].tilepos)
 					hits[0].kill()
 					break
 
@@ -146,7 +164,7 @@ class Game:
 		# Call update() on all sprites
 		self.all_sprites.update()
 		self.ui.update()
-		
+
 		# Show FPS for debbugging purposes
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
@@ -157,8 +175,8 @@ class Game:
 		px = int(self.player.chunkpos.x)
 		py = int(self.player.chunkpos.y)
 		self.area = []
-		for y in range(-CHUNKRENDERY, CHUNKRENDERY + 1):
-			for x in range(-CHUNKRENDERX, CHUNKRENDERX + 1):
+		for y in range(-CHUNKRENDER, CHUNKRENDER + 1):
+			for x in range(-CHUNKRENDER, CHUNKRENDER + 1):
 				cx = int(px + x)
 				cy = int(py + y)
 				chunkname = (cx, cy)
@@ -182,7 +200,7 @@ class Game:
 			pg.draw.line(self.screen, LIGHTGREY, (0, y*TILESIZE), (WIDTH, y*TILESIZE))
 
 	def draw(self):
-		#Make sure that not loaded parts of the map don't get the windows XP window duplicating effect
+		#Make sure that not loaded parts of the map don"t get the windows XP window duplicating effect
 		self.screen.fill(BLACK)
 
 		#Show all sprites on screen
@@ -193,7 +211,7 @@ class Game:
 					pg.draw.rect(self.screen, LIGHTGREY, self.camera.apply_rect(sprite.rect), 2)
 
 
-				# Draw the player's hitbox (white) and it's position (red)
+				# Draw the player"s hitbox (white) and it"s position (red)
 				pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(self.player.hit_rect), 2)
 				pg.draw.rect(self.screen, WHITE, self.camera.apply_rect(self.player.rect), 2)
 				pg.draw.rect(self.screen, RED, self.camera.apply_rect(pg.Rect(*self.player.pos, 4, 4)))
@@ -209,11 +227,11 @@ class Game:
 		hotbarlabel2 = self.hotbarFont.render(str(self.player.hotbar[1]["count"]), 1, WHITE)
 		hotbarlabel3 = self.hotbarFont.render(str(self.player.hotbar[2]["count"]), 1, WHITE)
 
-		if self.player.hotbar[0]['count'] > 1:
+		if self.player.hotbar[0]["count"] > 1:
 			self.screen.blit(hotbarlabel1, self.hotbar.hblabel1)
-		if self.player.hotbar[1]['count'] > 1:
+		if self.player.hotbar[1]["count"] > 1:
 			self.screen.blit(hotbarlabel2, self.hotbar.hblabel2)
-		if self.player.hotbar[2]['count'] > 1:
+		if self.player.hotbar[2]["count"] > 1:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
 
 	#Recieve some input for basic general control
@@ -223,7 +241,7 @@ class Game:
 				sys.exit()
 			if event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
-					chunkmanager.save()
+					self.save()
 					sys.exit()
 				if event.key == pg.K_h:
 					self.draw_debug = not self.draw_debug

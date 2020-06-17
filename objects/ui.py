@@ -13,7 +13,7 @@ class Hotbar(pg.sprite.Sprite):
 		self.groups = game.ui
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = UI['HUD']['hotbar']
+		self.image = UI["HUD"]["hotbar"]
 		self.rect = self.image.get_rect()
 		self.player = self.game.player
 		self.slot1 = "hotbar0"
@@ -30,26 +30,26 @@ class Hotbar(pg.sprite.Sprite):
 	def update(self):
 
 
-		if self.player.hotbar[0]['item'] and not self.player.hotbar_display[0]:
-			self.player.hotbar_display[0] = ItemPlaceholder(self.game, self.slot1, self.player.hotbar[0]['item'])
-		if self.player.hotbar[1]['item'] and not self.player.hotbar_display[1]:
-			self.player.hotbar_display[1] = ItemPlaceholder(self.game, self.slot2, self.player.hotbar[1]['item'])
-		if self.player.hotbar[2]['item'] and not self.player.hotbar_display[2]:
-			self.player.hotbar_display[2] = ItemPlaceholder(self.game, self.slot3, self.player.hotbar[2]['item'])
+		if self.player.hotbar[0]["item"] and not self.player.hotbar_display[0]:
+			self.player.hotbar_display[0] = ItemPlaceholder(self.game, self.slot1, self.player.hotbar[0]["item"])
+		if self.player.hotbar[1]["item"] and not self.player.hotbar_display[1]:
+			self.player.hotbar_display[1] = ItemPlaceholder(self.game, self.slot2, self.player.hotbar[1]["item"])
+		if self.player.hotbar[2]["item"] and not self.player.hotbar_display[2]:
+			self.player.hotbar_display[2] = ItemPlaceholder(self.game, self.slot3, self.player.hotbar[2]["item"])
 
 		if not self.player.holding:
 			self.player.holding = ItemPlaceholder(self.game, self.hand, null)
 
-		if self.player.selected_slot != -1 and self.player.hotbar[self.player.selected_slot]['count'] > 0:
+		if self.player.selected_slot != -1 and self.player.hotbar[self.player.selected_slot]["count"] > 0:
 
 			if self.game.player.vel.x > 0:
-				self.player.holding.image = pg.transform.flip(ITEMS[self.player.hotbar[self.player.selected_slot]['item']], true, false)
+				self.player.holding.image = pg.transform.flip(ITEMS[self.player.hotbar[self.player.selected_slot]["item"]], true, false)
 			if self.game.player.vel.x < 0:
-				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]['item']]
+				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]["item"]]
 			else:
-				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]['item']]
+				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]["item"]]
 
-		elif self.player.selected_slot != -1 and not self.player.hotbar[self.player.selected_slot]['item']:
+		elif self.player.selected_slot != -1 and not self.player.hotbar[self.player.selected_slot]["item"]:
 			self.player.holding.image = pg.Surface((1,1))
 		elif self.player.holding and self.player.selected_slot == -1:
 			self.player.holding.image = pg.Surface((1,1))
@@ -61,7 +61,7 @@ class HotbarPointer(pg.sprite.Sprite):
 		self.groups = game.ui
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = UI['HUD']['hb_pointer']
+		self.image = UI["HUD"]["hb_pointer"]
 		self.rect = self.image.get_rect()
 		self.offset = 0
 
@@ -74,13 +74,13 @@ class HotbarPointer(pg.sprite.Sprite):
 
 		if self.game.player.selected_slot == 0:
 			self.offset = -self.game.hotbar.rect.width / 3
-			self.image = UI['HUD']['hb_pointer']
+			self.image = UI["HUD"]["hb_pointer"]
 		elif self.game.player.selected_slot == 1:
 			self.offset = 0
-			self.image = UI['HUD']['hb_pointer']
+			self.image = UI["HUD"]["hb_pointer"]
 		elif self.game.player.selected_slot == 2:
 			self.offset = self.game.hotbar.rect.width / 3
-			self.image = UI['HUD']['hb_pointer']
+			self.image = UI["HUD"]["hb_pointer"]
 		else:
 			self.image = pg.Surface((1, 1))
 
@@ -98,7 +98,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.hotbar = self.game.hotbar.rect
 		self.slot = slot
-		self.handoffset = vec(-5, 0)
+		self.handoffset = vec(-30, 0)
 
 	def update(self):
 		if self.game.player.vel.x > 0:
