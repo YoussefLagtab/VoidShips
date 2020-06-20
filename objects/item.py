@@ -1,7 +1,8 @@
 import pygame as pg
-from textures import *
-from settings import *
 import pytweening as tween
+from settings import *
+from textures import *
+
 
 class Item(pg.sprite.Sprite):
 	def __init__(self, game, x, y, item):

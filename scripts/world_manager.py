@@ -1,7 +1,9 @@
 #!/usr/bin/python3.7
-import noise
 import random
+
+import noise
 from settings import *
+
 
 class WorldManager():
 
@@ -70,7 +72,7 @@ class WorldManager():
 							floor += MOUNTAIN
 						else:
 							floor += GRASS
-						spawner = random.randint(0, 100)
+						spawner = random.randint(0, ITEM_SPAWN_RATIO)
 
 						if spawner == 0:
 							items.update({(x, y) : "i"})

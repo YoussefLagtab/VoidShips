@@ -35,6 +35,8 @@ TILEHEIGHT = int(HEIGHT / TILESIZE)
 
 FPS = 120
 
+GAME_STATES = {'onmenu' : 0, 'ingame' : 1, 'paused' : 2, 'gameover' : 3}
+
 # Player settings
 PLAYER_SPEED = 250
 PLAYER_DEFAULT_SPAWN = (100000, 100000)
@@ -52,8 +54,7 @@ CHUNKSIZE = 4
 CHUNKTILESIZE = CHUNKSIZE * TILESIZE
 CHUNKRENDER = 3
 DEFAULT_WORLD_NAME = 'EMPTY'
-RESET_MAP = true
-
+MAX_WORLD_NAME_LENGTH = 30
 DEFAULT_WORLD_FORMAT = {
 "world_name" : str(),
 "seed" : int(),
@@ -62,8 +63,17 @@ DEFAULT_WORLD_FORMAT = {
 	"pos" : PLAYER_DEFAULT_SPAWN,
 	"name" : PLAYER_DEFAULT_NAME,
 	"selected_slot" : -1,
-	"hotbar" : {0 : {"item": null, "count" : 0}, 1 : {"item": null, "count" : 0}, 2 : {"item": null, "count" : 0}},
-	"inventory" : {0 : null, 1 : {"item": null, "count" : 0}, 2 : {"item": null, "count" : 0}, 3 : {"item": null, "count" : 0}, 4 : {"item": null, "count" : 0}, 5 : {"item": null, "count" : 0}, 6 : {"item": null, "count" : 0}}
+	"fullinv" : {
+		0 : {"item": null, "count" : 0},
+		1 : {"item": null, "count" : 0},
+		2 : {"item": null, "count" : 0},
+		3 : {"item": null, "count" : 0},
+		4 : {"item": null, "count" : 0},
+		5 : {"item": null, "count" : 0},
+		6 : {"item": null, "count" : 0},
+		7 : {"item": null, "count" : 0},
+		8 : {"item": null, "count" : 0}
+		}
 	}
 }
 
@@ -83,6 +93,7 @@ ITEM_LAYER = 2
 BOB_RANGE = 16
 BOB_SPEED = 0.8
 MAXITEMS = 24
+ITEM_SPAWN_RATIO = 1
 
 
 
