@@ -29,11 +29,11 @@ class Hotbar(pg.sprite.Sprite):
 
 		# Spawn placeholder on the hotbar
 		if self.player.fullinv[0]["item"] and not self.player.hotbar_display[0]:
-			self.player.hotbar_display[0] = ItemPlaceholder(self.game, 0, self.player.fullinv[0]["item"])
+			self.player.hotbar_display[0] = ItemPlaceholder(self.game, "hb1", self.player.fullinv[0]["item"])
 		if self.player.fullinv[1]["item"] and not self.player.hotbar_display[1]:
-			self.player.hotbar_display[1] = ItemPlaceholder(self.game, 1, self.player.fullinv[1]["item"])
+			self.player.hotbar_display[1] = ItemPlaceholder(self.game, "hb2", self.player.fullinv[1]["item"])
 		if self.player.fullinv[2]["item"] and not self.player.hotbar_display[2]:
-			self.player.hotbar_display[2] = ItemPlaceholder(self.game, 2, self.player.fullinv[2]["item"])
+			self.player.hotbar_display[2] = ItemPlaceholder(self.game, "hb3", self.player.fullinv[2]["item"])
 
 		# Spawn placeholder on hand
 		if not self.player.holding:
@@ -99,18 +99,23 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		self.orect = self.image.get_rect()
 		self.rect = self.orect.copy()
 		self.hotbar = self.game.hotbar.rect
+		self.inv_hotbar = self.game.inventory.hotbar_rect
 		self.inventory = self.game.inventory.rect
 		self.player = self.game.player
 		self.slot = slot
 		self.handoffset = vec(-30, 0)
 		self.visible = true
 
-		self.hold = WIDTH / 2 + self.game.player.rect.width / 2 + self.handoffset.x, HEIGHT / 2 + self.game.player.rect.height / 2 + self.handoffset.y
+		self.hand = WIDTH / 2 + self.game.player.rect.width / 2 + self.handoffset.x, HEIGHT / 2 + self.game.player.rect.height / 2 + self.handoffset.y
+
+		self.hb1 = (self.hotbar.centerx - self.hotbar.width / 3 + 3, self.hotbar.centery)
+		self.hb2 = self.hotbar.center
+		self.hb3 = (self.hotbar.centerx + self.hotbar.width / 3 - 3, self.hotbar.centery)
 
 		self.slots = {
-		0: (self.hotbar.centerx - self.hotbar.width / 3 + 3, self.hotbar.centery),
-		1: self.hotbar.center,
-		2: (self.hotbar.centerx + self.hotbar.width / 3 - 3, self.hotbar.centery),
+		0: (self.inventory.centerx - self.inventory.width / 3 + 6, self.inv_hotbar.centery),
+		1: (self.inventory.centerx, self.inv_hotbar.centery),
+		2: (self.inventory.centerx + self.inventory.width / 3 - 6, self.inv_hotbar.centery),
 		3: (self.inventory.centerx - self.inventory.width / 3 + 6, self.inventory.centery - self.inventory.height / 4 + 6),
 		4: (self.inventory.centerx, self.inventory.centery - self.inventory.height / 4 + 6),
 		5: (self.inventory.centerx + self.inventory.width / 3 - 6, self.inventory.centery - self.inventory.height / 4 + 6),
@@ -126,12 +131,17 @@ class ItemPlaceholder(pg.sprite.Sprite):
 			self.handoffset = vec(-5, 0)
 
 		if self.slot == "hand":
-			self.rect.center = self.hold
+			self.rect.center = self.hand
+		if self.slot == "hb1":
+			self.rect.center = self.hb1
+		if self.slot == "hb2":
+			self.rect.center = self.hb2
+		if self.slot == "hb3":
+			self.rect.center = self.hb3
 
 		if self.slot in self.slots:
-			if self.slot > 2:
-				self.visible = self.game.inventory.visible
-				self.image = pg.transform.scale(self.oimage, (self.orect.width * 2, self.orect.height * 2))
+			self.visible = self.game.inventory.visible
+			self.image = pg.transform.scale(self.oimage, (self.orect.width * 2, self.orect.height * 2))
 			self.rect = self.image.get_rect()
 			self.rect.center = self.slots[self.slot]
 
@@ -160,13 +170,17 @@ class Inventory(pg.sprite.Sprite):
 		self.label_offset = vec(20, 25)
 
 		self.labelpos = {
-		3: (vec(self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset),
-		4: (vec(self.rect.centerx, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset),
-		5: (vec(self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset),
+		0: (self.rect.centerx - self.rect.width / 3 + 6, self.hotbar_rect.centery) + self.label_offset,
+		1: (self.rect.centerx, self.hotbar_rect.centery) + self.label_offset,
+		2: (self.rect.centerx + self.rect.width / 3 - 6, self.hotbar_rect.centery) + self.label_offset,
 
-		6: (vec(self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset),
-		7: (vec(self.rect.centerx, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset),
-		8: (vec(self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset)
+		3: (self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
+		4: (self.rect.centerx, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
+		5: (self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
+
+		6: (self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset,
+		7: (self.rect.centerx, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset,
+		8: (self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset
 		}
 
 
@@ -176,25 +190,38 @@ class Inventory(pg.sprite.Sprite):
 		else:
 			self.visible = false
 
-		if self.player.fullinv[3]["item"] and not self.player.inv_display[0]:
-			self.player.inv_display[0] = ItemPlaceholder(self.game, 3, self.player.fullinv[3]["item"])
+		if self.player.fullinv[0]["item"] and not self.player.inv_display[0]:
+			self.player.inv_display[0] = ItemPlaceholder(self.game, 0, self.player.fullinv[0]["item"])
 
-		if self.player.fullinv[4]["item"] and not self.player.inv_display[1]:
-			self.player.inv_display[1] = ItemPlaceholder(self.game, 4, self.player.fullinv[4]["item"])
+		if self.player.fullinv[1]["item"] and not self.player.inv_display[1]:
+			self.player.inv_display[1] = ItemPlaceholder(self.game, 1, self.player.fullinv[1]["item"])
 
-		if self.player.fullinv[5]["item"] and not self.player.inv_display[2]:
-			self.player.inv_display[2] = ItemPlaceholder(self.game, 5, self.player.fullinv[5]["item"])
+		if self.player.fullinv[2]["item"] and not self.player.inv_display[2]:
+			self.player.inv_display[2] = ItemPlaceholder(self.game, 2, self.player.fullinv[2]["item"])
 
-		if self.player.fullinv[6]["item"] and not self.player.inv_display[3]:
-			self.player.inv_display[3] = ItemPlaceholder(self.game, 6, self.player.fullinv[6]["item"])
+		if self.player.fullinv[3]["item"] and not self.player.inv_display[3]:
+			self.player.inv_display[3] = ItemPlaceholder(self.game, 3, self.player.fullinv[3]["item"])
 
-		if self.player.fullinv[7]["item"] and not self.player.inv_display[4]:
-			self.player.inv_display[4] = ItemPlaceholder(self.game, 7, self.player.fullinv[7]["item"])
+		if self.player.fullinv[4]["item"] and not self.player.inv_display[4]:
+			self.player.inv_display[4] = ItemPlaceholder(self.game, 4, self.player.fullinv[4]["item"])
 
-		if self.player.fullinv[8]["item"] and not self.player.inv_display[5]:
-			self.player.inv_display[5] = ItemPlaceholder(self.game, 8, self.player.fullinv[8]["item"])
+		if self.player.fullinv[5]["item"] and not self.player.inv_display[5]:
+			self.player.inv_display[5] = ItemPlaceholder(self.game, 5, self.player.fullinv[5]["item"])
+
+		if self.player.fullinv[6]["item"] and not self.player.inv_display[6]:
+			self.player.inv_display[6] = ItemPlaceholder(self.game, 6, self.player.fullinv[6]["item"])
+
+		if self.player.fullinv[7]["item"] and not self.player.inv_display[7]:
+			self.player.inv_display[7] = ItemPlaceholder(self.game, 7, self.player.fullinv[7]["item"])
+
+		if self.player.fullinv[8]["item"] and not self.player.inv_display[8]:
+			self.player.inv_display[8] = ItemPlaceholder(self.game, 8, self.player.fullinv[8]["item"])
 
 		self.label = {
+		0: self.font.render(str(self.player.fullinv[0]['count']), 1, WHITE),
+		1: self.font.render(str(self.player.fullinv[1]['count']), 1, WHITE),
+		2: self.font.render(str(self.player.fullinv[2]['count']), 1, WHITE),
+
 		3: self.font.render(str(self.player.fullinv[3]['count']), 1, WHITE),
 		4: self.font.render(str(self.player.fullinv[4]['count']), 1, WHITE),
 		5: self.font.render(str(self.player.fullinv[5]['count']), 1, WHITE),
