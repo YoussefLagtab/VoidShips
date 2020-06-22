@@ -55,6 +55,7 @@ CHUNKTILESIZE = CHUNKSIZE * TILESIZE
 CHUNKRENDER = 3
 DEFAULT_WORLD_NAME = 'EMPTY'
 MAX_WORLD_NAME_LENGTH = 30
+
 DEFAULT_WORLD_FORMAT = {
 "world_name" : str(),
 "seed" : int(),
@@ -64,15 +65,15 @@ DEFAULT_WORLD_FORMAT = {
 	"name" : PLAYER_DEFAULT_NAME,
 	"selected_slot" : -1,
 	"fullinv" : {
-		0 : {"item": null, "count" : 0},
-		1 : {"item": null, "count" : 0},
-		2 : {"item": null, "count" : 0},
-		3 : {"item": null, "count" : 0},
-		4 : {"item": null, "count" : 0},
-		5 : {"item": null, "count" : 0},
-		6 : {"item": null, "count" : 0},
-		7 : {"item": null, "count" : 0},
-		8 : {"item": null, "count" : 0}
+		0 : {"item": "empty", "count" : 1},
+		1 : {"item": "empty", "count" : 1},
+		2 : {"item": "empty", "count" : 1},
+		3 : {"item": "empty", "count" : 1},
+		4 : {"item": "empty", "count" : 1},
+		5 : {"item": "empty", "count" : 1},
+		6 : {"item": "empty", "count" : 1},
+		7 : {"item": "empty", "count" : 1},
+		8 : {"item": "empty", "count" : 1}
 		}
 	}
 }

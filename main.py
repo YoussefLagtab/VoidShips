@@ -59,6 +59,12 @@ class Game:
 
 		self.entry = Entry(self, 10, 10, 1000, 20, self.enter_world, "textures/fonts/ttp.otf")
 		self.entry.typing = true
+
+		self.mouseItem = null
+		self.mouseCount = 0
+		self.mouseDummy = ItemPlaceholder(self, 9, null)
+		self.mouseDummy.on_mouse = true
+
 	# Change the state to in_game and create the world
 	def enter_world(self):
 		self.state = 1
@@ -142,9 +148,9 @@ class Game:
 		if hits:
 			for hit, item in enumerate(hits):
 				for slot in self.player.fullinv:
-					if not self.player.fullinv[slot]["item"]:
+					if self.player.fullinv[slot]["item"] == "empty":
 						self.player.fullinv[slot]["item"] = hits[hit].item
-						self.player.fullinv[slot]["count"] += 1
+						# self.player.fullinv[slot]["count"] += 1
 						self.worldmanager.kill_item(hits[hit].chunkpos, hits[hit].tilepos)
 						hits[hit].kill()
 						break
@@ -181,6 +187,10 @@ class Game:
 		self.all_sprites.update()
 		self.gui.update()
 
+		# Update the mouse dummy
+		self.mouseDummy.item = self.mouseItem
+		self.mouseDummy.count = self.mouseCount
+
 		# Show FPS for debbugging purposes
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 
@@ -213,6 +223,36 @@ class Game:
 			pg.draw.line(self.screen, LIGHTGREY, (x*TILESIZE, 0), (x*TILESIZE, HEIGHT))
 		for y in range(TILEHEIGHT):
 			pg.draw.line(self.screen, LIGHTGREY, (0, y*TILESIZE), (WIDTH, y*TILESIZE))
+	# Display player's inventory contents on screen
+	def show_inv_content(self):
+		l0 = self.hotbarFont.render("0 : Item: " + str(self.player.fullinv[0]["item"]) + " - Count: " + str(self.player.fullinv[0]["count"]), 1, WHITE)
+		l1 = self.hotbarFont.render("1 : Item: " + str(self.player.fullinv[1]["item"]) + " - Count: " + str(self.player.fullinv[1]["count"]), 1, WHITE)
+		l2 = self.hotbarFont.render("2 : Item: " + str(self.player.fullinv[2]["item"]) + " - Count: " + str(self.player.fullinv[2]["count"]), 1, WHITE)
+		l3 = self.hotbarFont.render("3 : Item: " + str(self.player.fullinv[3]["item"]) + " - Count: " + str(self.player.fullinv[3]["count"]), 1, WHITE)
+		l4 = self.hotbarFont.render("4 : Item: " + str(self.player.fullinv[4]["item"]) + " - Count: " + str(self.player.fullinv[4]["count"]), 1, WHITE)
+		l5 = self.hotbarFont.render("5 : Item: " + str(self.player.fullinv[5]["item"]) + " - Count: " + str(self.player.fullinv[5]["count"]), 1, WHITE)
+		l6 = self.hotbarFont.render("6 : Item: " + str(self.player.fullinv[6]["item"]) + " - Count: " + str(self.player.fullinv[6]["count"]), 1, WHITE)
+		l7 = self.hotbarFont.render("7 : Item: " + str(self.player.fullinv[7]["item"]) + " - Count: " + str(self.player.fullinv[7]["count"]), 1, WHITE)
+		l8 = self.hotbarFont.render("8 : Item: " + str(self.player.fullinv[8]["item"]) + " - Count: " + str(self.player.fullinv[8]["count"]), 1, WHITE)
+		mouse = self.hotbarFont.render("Mouse : Item: " + str(self.mouseItem) + " - Count: " + str(self.mouseCount), 1, WHITE)
+
+		self.screen.blit(l0, (10, 10))
+		self.screen.blit(l1, (10, 30))
+		self.screen.blit(l2, (10, 50))
+		self.screen.blit(l3, (10, 70))
+		self.screen.blit(l4, (10, 90))
+		self.screen.blit(l5, (10, 110))
+		self.screen.blit(l6, (10, 130))
+		self.screen.blit(l7, (10, 150))
+		self.screen.blit(l8, (10, 170))
+		self.screen.blit(mouse, (10, 200))
+
+		if self.inventory.visible:
+			for rect in self.inventory.empty_slots:
+				pg.draw.rect(self.screen, WHITE, self.inventory.empty_slots[rect], 3)
+
+			for ph in self.placeholders:
+				pg.draw.rect(self.screen, WHITE, ph.rect, 3)
 	# Draw the sprites
 	def draw(self):
 		#Make sure that not loaded parts of the map don"t get the windows XP window duplicating effect
@@ -239,7 +279,7 @@ class Game:
 			self.screen.blit(self.inventory.hotbar_img, self.inventory.hotbar_rect.topleft)
 
 		for ph in self.placeholders:
-			if ph.visible:
+			if ph.visible and ph.image:
 				self.screen.blit(ph.image, ph.rect.topleft)
 
 		hotbarlabel1 = self.hotbarFont.render(str(self.player.fullinv[0]["count"]), 1, WHITE)
@@ -252,6 +292,10 @@ class Game:
 			self.screen.blit(hotbarlabel2, self.hotbar.hblabel2)
 		if self.player.fullinv[2]["count"] > 1:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
+
+		self.show_inv_content()
+
+
 	#Recieve some input for basic general control
 	def events(self):
 		for event in pg.event.get():
@@ -285,8 +329,11 @@ class Game:
 					else:
 						self.player.selected_slot = 2
 
-				if event.key == pg.K_e:
+				if event.key == pg.K_e and not self.mouseItem:
 					self.player.on_inv = not self.player.on_inv
+
+				if event.key == pg.K_p:
+					self.player.fullinv = DEFAULT_WORLD_FORMAT['player']['fullinv']
 
 #Main loop
 g = Game()

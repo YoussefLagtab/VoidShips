@@ -1,7 +1,6 @@
 import pygame as pg
 from settings import *
 from textures import *
-import pygame as pg
 
 # HUD ───────────────────────────────────
 
@@ -37,20 +36,20 @@ class Hotbar(pg.sprite.Sprite):
 
 		# Spawn placeholder on hand
 		if not self.player.holding:
-			self.player.holding = ItemPlaceholder(self.game, self.hand, null)
+			self.player.holding = ItemPlaceholder(self.game, self.hand, "empty")
 
 		# Show item on hand
-		if self.player.selected_slot != -1 and self.player.hotbar[self.player.selected_slot]["count"] > 0:
+		if self.player.selected_slot != -1 and self.player.fullinv[self.player.selected_slot]["count"] > 0:
 
 			if self.game.player.vel.x > 0:
-				self.player.holding.image = pg.transform.flip(ITEMS[self.player.hotbar[self.player.selected_slot]["item"]], true, false)
+				self.player.holding.image = pg.transform.flip(ITEMS[self.player.fullinv[self.player.selected_slot]["item"]], true, false)
 			if self.game.player.vel.x < 0:
-				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]["item"]]
+				self.player.holding.image = ITEMS[self.player.fullinv[self.player.selected_slot]["item"]]
 			else:
-				self.player.holding.image = ITEMS[self.player.hotbar[self.player.selected_slot]["item"]]
+				self.player.holding.image = ITEMS[self.player.fullinv[self.player.selected_slot]["item"]]
 
 		# Remove the hand placeholder
-		elif self.player.selected_slot != -1 and not self.player.hotbar[self.player.selected_slot]["item"]:
+		elif self.player.selected_slot != -1 and not self.player.fullinv[self.player.selected_slot]["item"]:
 			self.player.holding.image = pg.Surface((1,1))
 		elif self.player.holding and self.player.selected_slot == -1:
 			self.player.holding.image = pg.Surface((1,1))
@@ -91,6 +90,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		self.item = item
+		self.count = 1
 		if item in ITEMS:
 			self.oimage = ITEMS[item]
 		else:
@@ -101,10 +101,13 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		self.hotbar = self.game.hotbar.rect
 		self.inv_hotbar = self.game.inventory.hotbar_rect
 		self.inventory = self.game.inventory.rect
+		self.inv = self.game.inventory
 		self.player = self.game.player
 		self.slot = slot
 		self.handoffset = vec(-30, 0)
 		self.visible = true
+		self.hasMoved = 99
+		self.on_mouse = false
 
 		self.hand = WIDTH / 2 + self.game.player.rect.width / 2 + self.handoffset.x, HEIGHT / 2 + self.game.player.rect.height / 2 + self.handoffset.y
 
@@ -113,22 +116,21 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		self.hb3 = (self.hotbar.centerx + self.hotbar.width / 3 - 3, self.hotbar.centery)
 
 		self.slots = {
-		0: (self.inventory.centerx - self.inventory.width / 3 + 6, self.inv_hotbar.centery),
-		1: (self.inventory.centerx, self.inv_hotbar.centery),
-		2: (self.inventory.centerx + self.inventory.width / 3 - 6, self.inv_hotbar.centery),
-		3: (self.inventory.centerx - self.inventory.width / 3 + 6, self.inventory.centery - self.inventory.height / 4 + 6),
-		4: (self.inventory.centerx, self.inventory.centery - self.inventory.height / 4 + 6),
-		5: (self.inventory.centerx + self.inventory.width / 3 - 6, self.inventory.centery - self.inventory.height / 4 + 6),
-		6: (self.inventory.centerx - self.inventory.width / 3 + 6, self.inventory.centery + self.inventory.height / 4 - 6),
-		7: (self.inventory.centerx, self.inventory.centery + self.inventory.height / 4 - 6),
-		8: (self.inventory.centerx + self.inventory.width / 3 - 6, self.inventory.centery + self.inventory.height / 4 - 6)
+		0: self.inv.empty_slots[0].center,
+		1: self.inv.empty_slots[1].center,
+		2: self.inv.empty_slots[2].center,
+		3: self.inv.empty_slots[3].center,
+		4: self.inv.empty_slots[4].center,
+		5: self.inv.empty_slots[5].center,
+		6: self.inv.empty_slots[6].center,
+		7: self.inv.empty_slots[7].center,
+		8: self.inv.empty_slots[8].center
 		}
 
-	def update(self):
-		if self.game.player.vel.x > 0:
-			self.handoffset = vec(-30, 0)
-		if self.game.player.vel.x < 0:
-			self.handoffset = vec(-5, 0)
+		self.hotbar_slots = {
+		0:"hb1",
+		1:"hb2",
+		2:"hb3"}
 
 		if self.slot == "hand":
 			self.rect.center = self.hand
@@ -145,6 +147,94 @@ class ItemPlaceholder(pg.sprite.Sprite):
 			self.rect = self.image.get_rect()
 			self.rect.center = self.slots[self.slot]
 
+		self.label_offset = vec(20, 25)
+		self.font = pg.font.Font("textures/fonts/ttp.otf", 15)
+
+	def update(self):
+
+
+		mousepos = pg.mouse.get_pos()
+		pressed1, pressed2, pressed3 = pg.mouse.get_pressed()
+
+		if self.game.player.vel.x > 0:
+			self.handoffset = vec(-30, 0)
+		if self.game.player.vel.x < 0:
+			self.handoffset = vec(-5, 0)
+
+		if self.slot in self.slots:
+			self.visible = self.game.inventory.visible
+
+		for slot in self.slots:
+			if self.slot == slot:
+				self.count = self.player.fullinv[slot]['count']
+
+		self.label = self.font.render(str(self.count), 1, WHITE)
+
+		if self.visible and self.slot in self.slots:
+			if self.count > -1 and self.player.fullinv[self.slot]["item"] != "empty":
+				self.game.screen.blit(self.label, self.rect.center + self.label_offset)
+		if self == self.game.mouseDummy and self.game.mouseItem:
+			self.game.screen.blit(self.label, self.rect.center + self.label_offset)
+
+		for slot in self.hotbar_slots:
+			if self.slot == self.hotbar_slots[slot]:
+				self.image = ITEMS[self.player.fullinv[slot]["item"]]
+
+		for slot in self.slots:
+			for ph in self.game.placeholders:
+				if ph.slot == slot:
+					ph.image = pg.transform.scale(ITEMS[self.player.fullinv[slot]["item"]], (self.rect.width * 2, self.rect.height * 2))
+
+		for slot in self.inv.empty_slots:
+			if self.slot in self.slots and self.inv.empty_slots[slot].collidepoint(mousepos) and self.player.on_inv:
+
+				if self.slot == slot and pressed1 and not self.game.mouseItem and self.player.fullinv[self.slot]["item"] != "empty":
+					self.game.mouseItem = self.player.fullinv[self.slot]["item"]
+					self.game.mouseCount = self.player.fullinv[self.slot]["count"]
+					self.player.fullinv[self.slot]["item"] = "empty"
+					self.player.fullinv[self.slot]["count"] = 1
+
+				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == "empty":
+					self.player.fullinv[slot]["item"] = self.game.mouseItem
+					self.player.fullinv[slot]["count"] = self.game.mouseCount
+					self.item = self.game.mouseItem
+					self.count = self.game.mouseCount
+					self.game.mouseItem = null
+					self.game.mouseCount = 0
+					self.hasMoved = slot
+
+				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty" and self.player.fullinv[slot]["item"] != self.game.mouseItem and self.hasMoved != slot:
+					swapItem = self.player.fullinv[slot]["item"]
+					swapCount = self.player.fullinv[slot]["count"]
+					self.player.fullinv[slot]["item"] = self.game.mouseItem
+					self.player.fullinv[slot]["count"] = self.game.mouseCount
+					self.item = self.game.mouseItem
+					self.count = self.game.mouseCount
+					self.game.mouseItem = swapItem
+					self.game.mouseCount = swapCount
+					self.hasMoved = slot
+
+				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == self.game.mouseItem:
+					sum = self.player.fullinv[slot]["count"] + self.game.mouseCount
+					if sum > MAXITEMS:
+						self.player.fullinv[slot]["count"] = MAXITEMS
+						self.game.mouseCount = sum - MAXITEMS
+					else:
+						self.player.fullinv[slot]["count"] = sum
+						self.game.mouseItem = null
+						self.game.mouseCount = 0
+
+		if self.item in ITEMS:
+			self.oimage = ITEMS[self.item]
+		else:
+			self.oimage = null
+		if self == self.game.mouseDummy:
+			img = pg.transform.scale(self.oimage, (64, 64)) if self.oimage else null
+			self.image = img
+
+
+		if self.on_mouse:
+			self.rect.center = mousepos
 
 # UI ───────────────────────────────────────
 
@@ -167,22 +257,31 @@ class Inventory(pg.sprite.Sprite):
 		self.hotbar_rect = self.hotbar_img.get_rect()
 		self.hotbar_rect.center = vec(WIDTH / 2 + self.game.player.rect.width / 2, HEIGHT / 2 + self.offset * 1.5)
 
-		self.label_offset = vec(20, 25)
-
-		self.labelpos = {
-		0: (self.rect.centerx - self.rect.width / 3 + 6, self.hotbar_rect.centery) + self.label_offset,
-		1: (self.rect.centerx, self.hotbar_rect.centery) + self.label_offset,
-		2: (self.rect.centerx + self.rect.width / 3 - 6, self.hotbar_rect.centery) + self.label_offset,
-
-		3: (self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
-		4: (self.rect.centerx, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
-		5: (self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery - self.rect.height / 4 + 6) + self.label_offset,
-
-		6: (self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset,
-		7: (self.rect.centerx, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset,
-		8: (self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery + self.rect.height / 4 - 6) + self.label_offset
+		self.slots = {
+		0:(self.rect.centerx - self.rect.width / 3 + 6, self.hotbar_rect.centery),
+		1:(self.rect.centerx, self.hotbar_rect.centery),
+		2:(self.rect.centerx + self.rect.width / 3 - 6, self.hotbar_rect.centery),
+		3:(self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery - self.rect.height / 4 + 6),
+		4:(self.rect.centerx, self.rect.centery - self.rect.height / 4 + 6),
+		5:(self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery - self.rect.height / 4 + 6),
+		6:(self.rect.centerx - self.rect.width / 3 + 6, self.rect.centery + self.rect.height / 4 - 6),
+		7:(self.rect.centerx, self.rect.centery + self.rect.height / 4 - 6),
+		8:(self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery + self.rect.height / 4 - 6)
 		}
 
+		self.empty_slots = {
+		0: pg.Rect((0,0,96,96)),
+		1: pg.Rect((0,0,96,96)),
+		2: pg.Rect((0,0,96,96)),
+		3: pg.Rect((0,0,96,96)),
+		4: pg.Rect((0,0,96,96)),
+		5: pg.Rect((0,0,96,96)),
+		6: pg.Rect((0,0,96,96)),
+		7: pg.Rect((0,0,96,96)),
+		8: pg.Rect((0,0,96,96)),
+		}
+		for i in self.empty_slots:
+			self.empty_slots[i].center = self.slots[i]
 
 	def update(self):
 		if self.player.on_inv:
@@ -217,24 +316,7 @@ class Inventory(pg.sprite.Sprite):
 		if self.player.fullinv[8]["item"] and not self.player.inv_display[8]:
 			self.player.inv_display[8] = ItemPlaceholder(self.game, 8, self.player.fullinv[8]["item"])
 
-		self.label = {
-		0: self.font.render(str(self.player.fullinv[0]['count']), 1, WHITE),
-		1: self.font.render(str(self.player.fullinv[1]['count']), 1, WHITE),
-		2: self.font.render(str(self.player.fullinv[2]['count']), 1, WHITE),
 
-		3: self.font.render(str(self.player.fullinv[3]['count']), 1, WHITE),
-		4: self.font.render(str(self.player.fullinv[4]['count']), 1, WHITE),
-		5: self.font.render(str(self.player.fullinv[5]['count']), 1, WHITE),
-
-		6: self.font.render(str(self.player.fullinv[6]['count']), 1, WHITE),
-		7: self.font.render(str(self.player.fullinv[7]['count']), 1, WHITE),
-		8: self.font.render(str(self.player.fullinv[8]['count']), 1, WHITE)
-		}
-
-		if self.visible:
-			for i in self.label:
-				if self.player.fullinv[i]['count'] > 1:
-					self.game.screen.blit(self.label[i], self.labelpos[i])
 
 
 # Menu ─────────────────────────────────────

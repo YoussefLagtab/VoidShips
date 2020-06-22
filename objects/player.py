@@ -63,18 +63,20 @@ class Player(pg.sprite.Sprite):
 		8 : null
 		}
 		self.selected_slot = 0
+		
+
 		# Create new inventory ──────────────────────────────────────────────────────────────────────────
 		self.selected_slot = 0
 		self.fullinv = {
-		0 : {"item": null, "count" : 0},
-		1 : {"item": null, "count" : 0},
-		2 : {"item": null, "count" : 0},
-		3 : {"item": null, "count" : 0},
-		4 : {"item": null, "count" : 0},
-		5 : {"item": null, "count" : 0},
-		6 : {"item": null, "count" : 0},
-		7 : {"item": null, "count" : 0},
-		8 : {"item": null, "count" : 0}
+		0 : {"item": "empty", "count" : 0},
+		1 : {"item": "empty", "count" : 0},
+		2 : {"item": "empty", "count" : 0},
+		3 : {"item": "empty", "count" : 0},
+		4 : {"item": "empty", "count" : 0},
+		5 : {"item": "empty", "count" : 0},
+		6 : {"item": "empty", "count" : 0},
+		7 : {"item": "empty", "count" : 0},
+		8 : {"item": "empty", "count" : 0}
 		}
 		# ───────────────────────────────────────────────────────────────────────────────────────────────
 
