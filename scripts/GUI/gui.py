@@ -152,48 +152,60 @@ class ItemPlaceholder(pg.sprite.Sprite):
 
 	def update(self):
 
-
+		# Get mouse presses (1 : left, 2 : middle, 3 : right)
 		mousepos = pg.mouse.get_pos()
 		pressed1, pressed2, pressed3 = pg.mouse.get_pressed()
 
+		# Change the offset of the hand dummy for the player
 		if self.game.player.vel.x > 0:
 			self.handoffset = vec(-30, 0)
 		if self.game.player.vel.x < 0:
 			self.handoffset = vec(-5, 0)
 
+		# Hide dummies if the inventory is not visible
 		if self.slot in self.slots:
 			self.visible = self.game.inventory.visible
 
+		# Make each dummy have the same count as the slot they're in
 		for slot in self.slots:
 			if self.slot == slot:
 				self.count = self.player.fullinv[slot]['count']
 
+		# Label for the number of items
 		self.label = self.font.render(str(self.count), 1, WHITE)
 
+		# Show the number of items in each slot
 		if self.visible and self.slot in self.slots:
 			if self.count > -1 and self.player.fullinv[self.slot]["item"] != "empty":
 				self.game.screen.blit(self.label, self.rect.center + self.label_offset)
+
+		# Show the number of items on the mouse
 		if self == self.game.mouseDummy and self.game.mouseItem:
 			self.game.screen.blit(self.label, self.rect.center + self.label_offset)
 
+		# Make the hotbar have the same image as the hotbar part of the inventory
 		for slot in self.hotbar_slots:
 			if self.slot == self.hotbar_slots[slot]:
 				self.image = ITEMS[self.player.fullinv[slot]["item"]]
 
+		# Make the items in the inventory look bigger
 		for slot in self.slots:
 			for ph in self.game.placeholders:
 				if ph.slot == slot:
 					ph.image = pg.transform.scale(ITEMS[self.player.fullinv[slot]["item"]], (self.rect.width * 2, self.rect.height * 2))
 
+		# Move items around the player's inventory
 		for slot in self.inv.empty_slots:
 			if self.slot in self.slots and self.inv.empty_slots[slot].collidepoint(mousepos) and self.player.on_inv:
 
+				# Pick up
 				if self.slot == slot and pressed1 and not self.game.mouseItem and self.player.fullinv[self.slot]["item"] != "empty":
 					self.game.mouseItem = self.player.fullinv[self.slot]["item"]
 					self.game.mouseCount = self.player.fullinv[self.slot]["count"]
 					self.player.fullinv[self.slot]["item"] = "empty"
 					self.player.fullinv[self.slot]["count"] = 1
 
+				# Drop
 				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == "empty":
 					self.player.fullinv[slot]["item"] = self.game.mouseItem
 					self.player.fullinv[slot]["count"] = self.game.mouseCount
@@ -203,6 +215,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 					self.game.mouseCount = 0
 					self.hasMoved = slot
 
+				# Swap
 				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty" and self.player.fullinv[slot]["item"] != self.game.mouseItem and self.hasMoved != slot:
 					swapItem = self.player.fullinv[slot]["item"]
 					swapCount = self.player.fullinv[slot]["count"]
@@ -214,6 +227,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 					self.game.mouseCount = swapCount
 					self.hasMoved = slot
 
+				# Add
 				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == self.game.mouseItem:
 					sum = self.player.fullinv[slot]["count"] + self.game.mouseCount
 					if sum > MAXITEMS:
@@ -224,6 +238,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 						self.game.mouseItem = null
 						self.game.mouseCount = 0
 
+		# Make the mouse dummy have the image of the item it's holding
 		if self.item in ITEMS:
 			self.oimage = ITEMS[self.item]
 		else:
@@ -232,8 +247,8 @@ class ItemPlaceholder(pg.sprite.Sprite):
 			img = pg.transform.scale(self.oimage, (64, 64)) if self.oimage else null
 			self.image = img
 
-
-		if self.on_mouse:
+		# Move the mouse dummy to the mouse position
+		if self == self.game.mouseDummy:
 			self.rect.center = mousepos
 
 # UI ───────────────────────────────────────
@@ -257,6 +272,7 @@ class Inventory(pg.sprite.Sprite):
 		self.hotbar_rect = self.hotbar_img.get_rect()
 		self.hotbar_rect.center = vec(WIDTH / 2 + self.game.player.rect.width / 2, HEIGHT / 2 + self.offset * 1.5)
 
+		# Specify the positions of each slot
 		self.slots = {
 		0:(self.rect.centerx - self.rect.width / 3 + 6, self.hotbar_rect.centery),
 		1:(self.rect.centerx, self.hotbar_rect.centery),
@@ -269,6 +285,7 @@ class Inventory(pg.sprite.Sprite):
 		8:(self.rect.centerx + self.rect.width / 3 - 6, self.rect.centery + self.rect.height / 4 - 6)
 		}
 
+		# Create a rect for each slot to detect clicks
 		self.empty_slots = {
 		0: pg.Rect((0,0,96,96)),
 		1: pg.Rect((0,0,96,96)),
@@ -280,6 +297,8 @@ class Inventory(pg.sprite.Sprite):
 		7: pg.Rect((0,0,96,96)),
 		8: pg.Rect((0,0,96,96)),
 		}
+
+		# Move each rect to its position in the inventory
 		for i in self.empty_slots:
 			self.empty_slots[i].center = self.slots[i]
 
@@ -289,30 +308,23 @@ class Inventory(pg.sprite.Sprite):
 		else:
 			self.visible = false
 
+		# Create a dummy for each slot in the inventory, based on the slot's content (even if it is empty)
 		if self.player.fullinv[0]["item"] and not self.player.inv_display[0]:
 			self.player.inv_display[0] = ItemPlaceholder(self.game, 0, self.player.fullinv[0]["item"])
-
 		if self.player.fullinv[1]["item"] and not self.player.inv_display[1]:
 			self.player.inv_display[1] = ItemPlaceholder(self.game, 1, self.player.fullinv[1]["item"])
-
 		if self.player.fullinv[2]["item"] and not self.player.inv_display[2]:
 			self.player.inv_display[2] = ItemPlaceholder(self.game, 2, self.player.fullinv[2]["item"])
-
 		if self.player.fullinv[3]["item"] and not self.player.inv_display[3]:
 			self.player.inv_display[3] = ItemPlaceholder(self.game, 3, self.player.fullinv[3]["item"])
-
 		if self.player.fullinv[4]["item"] and not self.player.inv_display[4]:
 			self.player.inv_display[4] = ItemPlaceholder(self.game, 4, self.player.fullinv[4]["item"])
-
 		if self.player.fullinv[5]["item"] and not self.player.inv_display[5]:
 			self.player.inv_display[5] = ItemPlaceholder(self.game, 5, self.player.fullinv[5]["item"])
-
 		if self.player.fullinv[6]["item"] and not self.player.inv_display[6]:
 			self.player.inv_display[6] = ItemPlaceholder(self.game, 6, self.player.fullinv[6]["item"])
-
 		if self.player.fullinv[7]["item"] and not self.player.inv_display[7]:
 			self.player.inv_display[7] = ItemPlaceholder(self.game, 7, self.player.fullinv[7]["item"])
-
 		if self.player.fullinv[8]["item"] and not self.player.inv_display[8]:
 			self.player.inv_display[8] = ItemPlaceholder(self.game, 8, self.player.fullinv[8]["item"])
 

@@ -63,8 +63,6 @@ class Game:
 		self.mouseItem = null
 		self.mouseCount = 0
 		self.mouseDummy = ItemPlaceholder(self, 9, null)
-		self.mouseDummy.on_mouse = true
-
 	# Change the state to in_game and create the world
 	def enter_world(self):
 		self.state = 1
@@ -147,13 +145,16 @@ class Game:
 		hits = pg.sprite.spritecollide(self.player, self.items, false)
 		if hits:
 			for hit, item in enumerate(hits):
+				# Iterate through each slot in the inventory of the player
 				for slot in self.player.fullinv:
+					# If it finds an empty slot, put the item in there
 					if self.player.fullinv[slot]["item"] == "empty":
 						self.player.fullinv[slot]["item"] = hits[hit].item
 						# self.player.fullinv[slot]["count"] += 1
 						self.worldmanager.kill_item(hits[hit].chunkpos, hits[hit].tilepos)
 						hits[hit].kill()
 						break
+					# If it finds a slot with the same item that has been hit, if the count is less than MAXITEMS, add it to the slot
 					elif self.player.fullinv[slot]["item"] == hits[hit].item and self.player.fullinv[slot]["count"] < MAXITEMS:
 						self.player.fullinv[slot]["count"] += 1
 						self.worldmanager.kill_item(hits[hit].chunkpos, hits[hit].tilepos)
@@ -247,12 +248,13 @@ class Game:
 		self.screen.blit(l8, (10, 170))
 		self.screen.blit(mouse, (10, 200))
 
-		if self.inventory.visible:
-			for rect in self.inventory.empty_slots:
-				pg.draw.rect(self.screen, WHITE, self.inventory.empty_slots[rect], 3)
+		if self.draw_debug:
+			if self.inventory.visible:
+				for rect in self.inventory.empty_slots:
+					pg.draw.rect(self.screen, WHITE, self.inventory.empty_slots[rect], 3)
 
-			for ph in self.placeholders:
-				pg.draw.rect(self.screen, WHITE, ph.rect, 3)
+				for ph in self.placeholders:
+					pg.draw.rect(self.screen, WHITE, ph.rect, 3)
 	# Draw the sprites
 	def draw(self):
 		#Make sure that not loaded parts of the map don"t get the windows XP window duplicating effect
@@ -294,8 +296,6 @@ class Game:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
 
 		self.show_inv_content()
-
-
 	#Recieve some input for basic general control
 	def events(self):
 		for event in pg.event.get():

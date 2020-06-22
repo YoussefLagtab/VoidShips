@@ -3,7 +3,7 @@ from settings import *
 from settings import collide_hit_rect
 from textures import *
 
-
+# Collide with the passed group of tiles
 def collide_with_walls(sprite, group, dir):
 	if dir == "x":
 		hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
@@ -63,24 +63,10 @@ class Player(pg.sprite.Sprite):
 		8 : null
 		}
 		self.selected_slot = 0
-		
-
 		# Create new inventory ──────────────────────────────────────────────────────────────────────────
 		self.selected_slot = 0
-		self.fullinv = {
-		0 : {"item": "empty", "count" : 0},
-		1 : {"item": "empty", "count" : 0},
-		2 : {"item": "empty", "count" : 0},
-		3 : {"item": "empty", "count" : 0},
-		4 : {"item": "empty", "count" : 0},
-		5 : {"item": "empty", "count" : 0},
-		6 : {"item": "empty", "count" : 0},
-		7 : {"item": "empty", "count" : 0},
-		8 : {"item": "empty", "count" : 0}
-		}
-		# ───────────────────────────────────────────────────────────────────────────────────────────────
-
-
+		self.fullinv = DEFAULT_WORLD_FORMAT["player"]["fullinv"]
+	# Load the data passed from the create() function in main.py
 	def load_data(self, data):
 		self.playerdata = data
 		self.pos = vec(data["pos"])
@@ -90,9 +76,6 @@ class Player(pg.sprite.Sprite):
 		# Load inventory ────────────────────────────────────────────────────────────────────────────────
 		self.selected_slot = data["selected_slot"]
 		self.fullinv = data["fullinv"]
-		# ───────────────────────────────────────────────────────────────────────────────────────────────
-
-
 	# Save the player"s data
 	def save_data(self):
 		print("Saving player data")
@@ -103,7 +86,6 @@ class Player(pg.sprite.Sprite):
 		"fullinv": self.fullinv
 		})
 		return self.playerdata
-
 	# Get input for player movement
 	def get_keys(self):
 		self.vel = vec(0,0)
@@ -119,8 +101,6 @@ class Player(pg.sprite.Sprite):
 			self.vel.y = PLAYER_SPEED
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= 0.7071
-
-
 	# Update the player values
 	def update(self):
 
@@ -129,23 +109,28 @@ class Player(pg.sprite.Sprite):
 		self.rect.center = self.pos
 		self.pos += self.vel * self.game.delta
 
+		# Flip the player's image depending on its velocity
 		if self.vel.x < 0:
 			self.image = pg.transform.flip(self.img, true, false)
 		if self.vel.x > 0:
 			self.image = self.img
 
+		# Move the player and collide if necesary
 		self.hit_rect.centerx = self.pos.x
 		if PLAYER_COLLIDE:
 			collide_with_walls(self, self.game.collidables, "x")
-
 		self.hit_rect.y = self.pos.y + self.hitrect_offset
 		if PLAYER_COLLIDE:
 			collide_with_walls(self, self.game.collidables, "y")
 
+		# Move the player's rect with its position
 		self.rect.center = self.pos
 
+		# Find the position measured in tiles or chunks of the player
 		self.tilepos = vec(int(self.pos.x / TILESIZE), int(self.pos.y / TILESIZE))
 		self.chunkpos = vec(int(self.tilepos.x / CHUNKSIZE), int(self.tilepos.y / CHUNKSIZE))
+
+		# Limit the player movement to the positive side of the grid
 		if self.pos.x < XLIMIT:
 			print("You have reached the edge of the world!")
 			self.pos.x = XLIMIT
