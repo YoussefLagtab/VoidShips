@@ -15,7 +15,7 @@ class WorldManager():
 		if seed:
 			self.seed = int(seed)
 		else:
-			self.seed = seedgen
+			self.seed = int(seedgen)
 		if name == "" or not name:
 			self.name = DEFAULT_WORLD_NAME
 		else:
@@ -66,7 +66,10 @@ class WorldManager():
 			# print("Generating chunk at {}".format(chunk))
 			for y in range(chunky * CHUNKSIZE, chunky * CHUNKSIZE + CHUNKSIZE):
 				for x in range(chunkx * CHUNKSIZE, chunkx * CHUNKSIZE + CHUNKSIZE):
-					i = round(noise.pnoise2(x/15, y/15, octaves = oct, base=self.seed), 5)
+					try:
+						i = round(noise.pnoise2(x/15, y/15, octaves = oct, base=int(self.seed)), 5)
+					except Exception:
+						i = round(noise.pnoise2(x/15, y/15, octaves = oct, base=seedgen), 5)
 					if i >= floor_void_diff:
 						if i > mountain:
 							floor += MOUNTAIN

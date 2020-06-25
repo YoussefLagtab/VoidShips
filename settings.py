@@ -45,7 +45,7 @@ PLAYER_COLLIDE = false
 PLAYER_DEFAULT_NAME = "Chris"
 
 # World settings
-MAXSEED = 11142780
+MAXSEED = 10000000
 seedgen=random.randint(-MAXSEED, MAXSEED)
 ammount = 5
 MAPSIZEX = 64

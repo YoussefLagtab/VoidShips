@@ -84,8 +84,12 @@ class Game:
 				pickle.dump(DEFAULT_WORLD_FORMAT, f)
 			with open("worlds/"+self.name+".data", 'rb') as f:
 				self.world_data = pickle.load(f)
-				print(self.world_data['seed'])
-			self.worldmanager = WorldManager(self.world_data['map'], seedgen, self.name)
+				print(self.world_data)
+
+			try:
+				self.worldmanager = WorldManager(DEFAULT_WORLD_FORMAT['map'], seedgen, self.name)
+			except:
+				pass
 
 		self.player.load_data(self.world_data["player"])
 	# Load the blocks and items from the chunk given by the worldmanager loader

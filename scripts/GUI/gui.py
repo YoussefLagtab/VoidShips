@@ -181,7 +181,7 @@ class ItemPlaceholder(pg.sprite.Sprite):
 
 		# Show the number of items on the mouse
 		if self == self.game.mouseDummy and self.game.mouseItem:
-			self.game.screen.blit(self.label, self.rect.center + self.label_offset)
+			self.game.screen.blit(self.label, self.rect.center + self.label_offset * 2)
 
 		# Make the hotbar have the same image as the hotbar part of the inventory
 		for slot in self.hotbar_slots:
@@ -237,6 +237,21 @@ class ItemPlaceholder(pg.sprite.Sprite):
 						self.player.fullinv[slot]["count"] = sum
 						self.game.mouseItem = null
 						self.game.mouseCount = 0
+
+				# Split
+				if self.slot == slot and pressed2 and not self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty":
+					num = self.player.fullinv[slot]["count"] / 2
+
+					if self.player.fullinv[slot]["count"] % 2 == 0:
+						print("a")
+						self.player.fullinv[slot]["count"] = int(num)
+						self.game.mouseCount = int(num)
+						self.game.mouseItem = self.player.fullinv[slot]["item"]
+					else:
+						print("b")
+						self.player.fullinv[slot]["count"] = int(num)
+						self.game.mouseCount = int(num) + 1
+						self.game.mouseItem = self.player.fullinv[slot]["item"]
 
 		# Make the mouse dummy have the image of the item it's holding
 		if self.item in ITEMS:

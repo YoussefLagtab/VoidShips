@@ -1,10 +1,10 @@
 from cx_Freeze import setup, Executable
 import sys
 
-version = "0.0.0.2"
-modules = ["pygame", "noise", "random", "sys"]
+version = "0.0.0.3"
+modules = ["pygame", "noise", "random", "sys", "pytweening", "pickle"]
 files = ["objects/", "scripts/", "textures/", "settings.py"]
-outputdir = "/home/kolterdyx/PythonBuilds/VoidBoats"
+outputdir = "C:\\Users\\Ciro\\VoidBoats" if sys.platform == "win32" else "/home/kolterdyx/PythonBuilds/VoidBoats"
 
 build_options = {
 	"packages": [],
