@@ -299,7 +299,7 @@ class Game:
 		if self.player.fullinv[2]["count"] > 1:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
 
-		self.show_inv_content()
+		#self.show_inv_content()
 	#Recieve some input for basic general control
 	def events(self):
 		for event in pg.event.get():
