@@ -76,7 +76,7 @@ class Game:
 			with open("worlds/"+self.name+".data", 'rb') as f:
 				self.world_data = pickle.load(f)
 				print(self.world_data['seed'])
-			self.worldmanager = WorldManager(self.world_data['map'], self.world_data['seed'], self.world_data["world_name"])
+			self.worldmanager = WorldManager(self, self.world_data['map'], self.world_data['seed'], self.world_data["world_name"])
 
 		except:
 			print('World "{}" not found. Generating a new one...'.format(self.name))
@@ -87,7 +87,7 @@ class Game:
 				print(self.world_data)
 
 			try:
-				self.worldmanager = WorldManager(DEFAULT_WORLD_FORMAT['map'], seedgen, self.name)
+				self.worldmanager = WorldManager(self, DEFAULT_WORLD_FORMAT['map'], seedgen, self.name)
 			except:
 				pass
 
@@ -126,6 +126,7 @@ class Game:
 		# Define render area
 		for chunk in self.area:
 			if chunk not in self.worldmanager.get_chunks():
+				self.save()
 				self.worldmanager.generate(chunk[0], chunk[1])
 			self.load_chunk(self.worldmanager.load(chunk[0], chunk[1]))
 
@@ -305,44 +306,44 @@ class Game:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
 	#Recieve some input for basic general control
 	def events(self):
-		for event in pg.event.get():
-			if event.type == pg.QUIT:
+		for self.event in pg.event.get():
+			if self.event.type == pg.QUIT:
 				sys.exit()
-			if event.type == pg.KEYDOWN:
-				if event.key == pg.K_ESCAPE:
-					if self.player.on_inv:
+			if self.event.type == pg.KEYDOWN:
+				if self.event.key == pg.K_ESCAPE:
+					if self.player.on_inv and not self.mouseItem:
 						self.player.on_inv = false
 					else:
 						self.save()
 						sys.exit()
-				if event.key == pg.K_h:
+				if self.event.key == pg.K_h:
 					self.draw_debug = not self.draw_debug
 
-				if event.key == pg.K_1:
+				if self.event.key == pg.K_1:
 					if self.player.selected_slot == 0:
 						self.player.selected_slot = -1
 					else:
 						self.player.selected_slot = 0
 
-				if event.key == pg.K_2:
+				if self.event.key == pg.K_2:
 					if self.player.selected_slot == 1:
 						self.player.selected_slot = -1
 					else:
 						self.player.selected_slot = 1
 
-				if event.key == pg.K_3:
+				if self.event.key == pg.K_3:
 					if self.player.selected_slot == 2:
 						self.player.selected_slot = -1
 					else:
 						self.player.selected_slot = 2
 
-				if event.key == pg.K_e and not self.mouseItem:
+				if self.event.key == pg.K_e and not self.mouseItem:
 					self.player.on_inv = not self.player.on_inv
 
-				if event.key == pg.K_p:
+				if self.event.key == pg.K_p:
 					self.player.fullinv = DEFAULT_WORLD_FORMAT['player']['fullinv']
 
-				if event.key == pg.K_f:
+				if self.event.key == pg.K_f:
 					self.change_tile()
 
 #Main loop

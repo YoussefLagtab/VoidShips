@@ -84,6 +84,8 @@ class HotbarPointer(pg.sprite.Sprite):
 			self.image = pg.Surface((1, 1))
 
 class ItemPlaceholder(pg.sprite.Sprite):
+	global a
+
 	def __init__(self, game, slot, item):
 		self._layer = 3
 		self.groups = game.placeholders, game.gui
@@ -150,11 +152,13 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		self.label_offset = vec(20, 25)
 		self.font = pg.font.Font("textures/fonts/ttp.otf", 15)
 
+		self.last = pg.time.get_ticks()
+		self.cooldown = 3000
+
 	def update(self):
 
 		# Get mouse presses (1 : left, 2 : middle, 3 : right)
 		mousepos = pg.mouse.get_pos()
-		pressed1, pressed2, pressed3 = pg.mouse.get_pressed()
 
 		# Change the offset of the hand dummy for the player
 		if self.game.player.vel.x > 0:
@@ -195,63 +199,68 @@ class ItemPlaceholder(pg.sprite.Sprite):
 					ph.image = pg.transform.scale(ITEMS[self.player.fullinv[slot]["item"]], (self.rect.width * 2, self.rect.height * 2))
 
 		# Move items around the player's inventory
+
 		for slot in self.inv.empty_slots:
 			if self.slot in self.slots and self.inv.empty_slots[slot].collidepoint(mousepos) and self.player.on_inv:
 
-				# Pick up
-				if self.slot == slot and pressed1 and not self.game.mouseItem and self.player.fullinv[self.slot]["item"] != "empty":
-					self.game.mouseItem = self.player.fullinv[self.slot]["item"]
-					self.game.mouseCount = self.player.fullinv[self.slot]["count"]
-					self.player.fullinv[self.slot]["item"] = "empty"
-					self.player.fullinv[self.slot]["count"] = 1
+				if self.game.event.type == pg.MOUSEBUTTONUP:
+					if self.game.event.button == 1:
 
-				# Drop
-				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == "empty":
-					self.player.fullinv[slot]["item"] = self.game.mouseItem
-					self.player.fullinv[slot]["count"] = self.game.mouseCount
-					self.item = self.game.mouseItem
-					self.count = self.game.mouseCount
-					self.game.mouseItem = null
-					self.game.mouseCount = 0
-					self.hasMoved = slot
+						# Pick up
+						if self.slot == slot and not self.game.mouseItem and self.player.fullinv[self.slot]["item"] != "empty":
+							self.game.mouseItem = self.player.fullinv[self.slot]["item"]
+							self.game.mouseCount = self.player.fullinv[self.slot]["count"]
+							self.player.fullinv[self.slot]["item"] = "empty"
+							self.player.fullinv[self.slot]["count"] = 1
 
-				# Swap
-				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty" and self.player.fullinv[slot]["item"] != self.game.mouseItem and self.hasMoved != slot:
-					swapItem = self.player.fullinv[slot]["item"]
-					swapCount = self.player.fullinv[slot]["count"]
-					self.player.fullinv[slot]["item"] = self.game.mouseItem
-					self.player.fullinv[slot]["count"] = self.game.mouseCount
-					self.item = self.game.mouseItem
-					self.count = self.game.mouseCount
-					self.game.mouseItem = swapItem
-					self.game.mouseCount = swapCount
-					self.hasMoved = slot
 
-				# Add
-				if pressed3 and self.game.mouseItem and self.player.fullinv[slot]["item"] == self.game.mouseItem:
-					sum = self.player.fullinv[slot]["count"] + self.game.mouseCount
-					if sum > MAXITEMS:
-						self.player.fullinv[slot]["count"] = MAXITEMS
-						self.game.mouseCount = sum - MAXITEMS
-					else:
-						self.player.fullinv[slot]["count"] = sum
-						self.game.mouseItem = null
-						self.game.mouseCount = 0
+						# Drop
+						if self.game.mouseItem and self.player.fullinv[slot]["item"] == "empty":
+							self.player.fullinv[slot]["item"] = self.game.mouseItem
+							self.player.fullinv[slot]["count"] = self.game.mouseCount
+							self.item = self.game.mouseItem
+							self.count = self.game.mouseCount
+							self.game.mouseItem = null
+							self.game.mouseCount = 0
 
-				# Split
-				if self.slot == slot and pressed2 and not self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty":
-					num = self.player.fullinv[slot]["count"] / 2
+						# Swap
+						if self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty" and self.player.fullinv[slot]["item"] != self.game.mouseItem and self.hasMoved != slot:
+							swapItem = self.player.fullinv[slot]["item"]
+							swapCount = self.player.fullinv[slot]["count"]
+							self.player.fullinv[slot]["item"] = self.game.mouseItem
+							self.player.fullinv[slot]["count"] = self.game.mouseCount
+							self.item = self.game.mouseItem
+							self.count = self.game.mouseCount
+							self.game.mouseItem = swapItem
+							self.game.mouseCount = swapCount
+							self.hasMoved = slot
 
-					if self.player.fullinv[slot]["count"] % 2 == 0:
-						print("a")
-						self.player.fullinv[slot]["count"] = int(num)
-						self.game.mouseCount = int(num)
-						self.game.mouseItem = self.player.fullinv[slot]["item"]
-					else:
-						print("b")
-						self.player.fullinv[slot]["count"] = int(num)
-						self.game.mouseCount = int(num) + 1
-						self.game.mouseItem = self.player.fullinv[slot]["item"]
+						# Add
+						if self.game.mouseItem and self.player.fullinv[slot]["item"] == self.game.mouseItem:
+							sum = self.player.fullinv[slot]["count"] + self.game.mouseCount
+							if sum > MAXITEMS:
+								self.player.fullinv[slot]["count"] = MAXITEMS
+								self.game.mouseCount = sum - MAXITEMS
+							else:
+								self.player.fullinv[slot]["count"] = sum
+								self.game.mouseItem = null
+								self.game.mouseCount = 0
+
+					if self.game.event.button == 3:
+						# Split
+						if self.slot == slot and not self.game.mouseItem and self.player.fullinv[slot]["item"] != "empty":
+							num = self.player.fullinv[slot]["count"] / 2
+
+							if self.player.fullinv[slot]["count"] % 2 == 0:
+								self.player.fullinv[slot]["count"] = int(num)
+								self.game.mouseCount = int(num)
+								self.game.mouseItem = self.player.fullinv[slot]["item"]
+							else:
+								if self.player.fullinv[slot]["count"] > 1:
+									self.player.fullinv[slot]["count"] = int(num)
+									self.game.mouseCount = int(num) + 1
+									self.game.mouseItem = self.player.fullinv[slot]["item"]
+
 
 		# Make the mouse dummy have the image of the item it's holding
 		if self.item in ITEMS:
@@ -265,6 +274,9 @@ class ItemPlaceholder(pg.sprite.Sprite):
 		# Move the mouse dummy to the mouse position
 		if self == self.game.mouseDummy:
 			self.rect.center = mousepos
+
+		if not self.visible:
+			self.hasMoved = -1
 
 # UI ───────────────────────────────────────
 

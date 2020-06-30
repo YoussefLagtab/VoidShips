@@ -118,24 +118,3 @@ class Entry(pg.sprite.Sprite):
 		if self.typing:
 			self.screen.blit(self.cursor, self.cursor_rect.topleft)
 		self.screen.blit(self.label, (self.rect.x + 2, self.rect.y + 1))
-
-
-# class Screen():
-# 	def __init__(self):
-# 		self.screen = pg.display.set_mode((400, 300))
-# 		self.entry = Entry(self, 10, 10, 100, 20, self.dick)
-#
-# 	def dick(self):
-# 		print('You have typed: ', self.entry.text)
-#
-# 	def update(self):
-# 		self.entry.update()
-# 		if self.entry.c == 500:
-# 			print(self.entry.text)
-# 		pg.display.update()
-#
-#
-#
-# s = Screen()
-# while True:
-# 	s.update()

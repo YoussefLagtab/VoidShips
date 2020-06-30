@@ -7,8 +7,9 @@ from settings import *
 
 class WorldManager():
 
-	def __init__(self, data, seed, name="Empty"):
+	def __init__(self, game, data, seed, name="Empty"):
 
+		self.game = game
 		self.loaded = []
 		self.chunk = tuple()
 		self.unsaved = int()

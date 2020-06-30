@@ -106,7 +106,7 @@ def collide_hit_rect(one, two):
 
 # UI settings
 UI_MARGIN = 10
-
+click_timer = 100
 
 # Tiles
 
