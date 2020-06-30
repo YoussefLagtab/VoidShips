@@ -106,3 +106,8 @@ def collide_hit_rect(one, two):
 
 # UI settings
 UI_MARGIN = 10
+
+
+# Tiles
+
+TILE_LIST = ["mountain", "grass", "void"]

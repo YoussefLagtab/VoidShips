@@ -105,12 +105,8 @@ class Game:
 				tile = i[0]
 				x = i[1]
 				y = i[2]
-				if tile == ".":
-					Void(self, x, y)
-				if tile == "#":
-					Block(self, x, y, "grass")
-				if tile == "@":
-					Block(self, x, y, "mountain")
+				if tile in TILE_LIST:
+					Block(self, x, y, tile)
 
 			for i in items:
 				item = i[0]
@@ -164,6 +160,15 @@ class Game:
 						self.worldmanager.kill_item(hits[hit].chunkpos, hits[hit].tilepos)
 						hits[hit].kill()
 						break
+	# Destroy tiles
+	def change_tile(self):
+		change_type = 'void'
+		for tile in self.all_sprites:
+			if isinstance(tile, Block):
+				if abs(tile.pos.x - self.player.pos.x) < TILESIZE / 2 and abs(tile.pos.y - self.player.pos.y) < TILESIZE / 2:
+					tile.change(change_type)
+					self.worldmanager.change_block(tile.chunkpos, tile.tilepos, change_type)
+
 	# Call each function in the correct order for the game to run properly
 	def run(self):
 		if self.state == GAME_STATES['ingame']:
@@ -298,8 +303,6 @@ class Game:
 			self.screen.blit(hotbarlabel2, self.hotbar.hblabel2)
 		if self.player.fullinv[2]["count"] > 1:
 			self.screen.blit(hotbarlabel3, self.hotbar.hblabel3)
-
-		#self.show_inv_content()
 	#Recieve some input for basic general control
 	def events(self):
 		for event in pg.event.get():
@@ -338,6 +341,9 @@ class Game:
 
 				if event.key == pg.K_p:
 					self.player.fullinv = DEFAULT_WORLD_FORMAT['player']['fullinv']
+
+				if event.key == pg.K_f:
+					self.change_tile()
 
 #Main loop
 g = Game()

@@ -7,34 +7,47 @@ from textures import *
 
 pg.init()
 
+letters = {
+pg.K_a : ['a', 'A'],
+pg.K_b : ['b', 'B'],
+pg.K_c : ['c', 'C'],
+pg.K_d : ['d', 'D'],
+pg.K_e : ['e', 'E'],
+pg.K_f : ['f', 'F'],
+pg.K_g : ['g', 'G'],
+pg.K_h : ['h', 'H'],
+pg.K_i : ['i', 'I'],
+pg.K_j : ['j', 'J'],
+pg.K_k : ['k', 'K'],
+pg.K_l : ['l', 'L'],
+pg.K_m : ['m', 'M'],
+pg.K_n : ['n', 'N'],
+pg.K_o : ['o', 'O'],
+pg.K_p : ['p', 'P'],
+pg.K_q : ['q', 'Q'],
+pg.K_r : ['r', 'R'],
+pg.K_s : ['s', 'S'],
+pg.K_t : ['t', 'T'],
+pg.K_u : ['u', 'U'],
+pg.K_v : ['v', 'V'],
+pg.K_w : ['w', 'W'],
+pg.K_x : ['x', 'X'],
+pg.K_y : ['y', 'Y'],
+pg.K_z : ['z', 'Z'],
+}
+
 characters = {
-pg.K_a : 'a',
-pg.K_b : 'b',
-pg.K_c : 'c',
-pg.K_d : 'd',
-pg.K_e : 'e',
-pg.K_f : 'f',
-pg.K_g : 'g',
-pg.K_h : 'h',
-pg.K_i : 'i',
-pg.K_j : 'j',
-pg.K_k : 'k',
-pg.K_l : 'l',
-pg.K_m : 'm',
-pg.K_n : 'n',
-pg.K_o : 'o',
-pg.K_p : 'p',
-pg.K_q : 'q',
-pg.K_r : 'r',
-pg.K_s : 's',
-pg.K_t : 't',
-pg.K_u : 'u',
-pg.K_v : 'v',
-pg.K_w : 'w',
-pg.K_x : 'x',
-pg.K_y : 'y',
-pg.K_z : 'z',
-pg.K_SPACE : ' '
+pg.K_SPACE : ' ',
+pg.K_0 : '0',
+pg.K_1 : '1',
+pg.K_2 : '2',
+pg.K_3 : '3',
+pg.K_4 : '4',
+pg.K_5 : '5',
+pg.K_6 : '6',
+pg.K_7 : '7',
+pg.K_8 : '8',
+pg.K_9 : '9',
 }
 
 class Entry(pg.sprite.Sprite):
@@ -76,7 +89,7 @@ class Entry(pg.sprite.Sprite):
 		else:
 			self.cc *= -1
 
-
+		keys = [pg.key.get_pressed()]
 		for event in pg.event.get():
 			if event.type == pg.QUIT:
 				sys.exit()
@@ -86,6 +99,11 @@ class Entry(pg.sprite.Sprite):
 				if self.typing:
 					if event.key in characters:
 						self.add_char(characters[event.key])
+					elif event.key in letters and keys:
+						if keys[pg.KMOD_SHIFT]:
+							self.add_char(letters[event.key[1]])
+						else:
+							self.add_char(letters[event.key][0])
 					if event.key == pg.K_BACKSPACE:
 						self.remove_char()
 					if event.key == pg.K_RETURN:

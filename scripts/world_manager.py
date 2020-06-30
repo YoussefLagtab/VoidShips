@@ -45,19 +45,26 @@ class WorldManager():
 			print("Item does not exist")
 			pass
 
+	def change_block(self, chunk, pos, type):
+		if self.chunks[chunk]["floor"][pos]:
+			self.chunks[chunk]["floor"][pos] = type
+		else:
+			print("Block does not exist")
+			pass
+
 	# Generate a chunk at given coordinates using pnoise2 and adding it to the chunk list
 	def generate(self, chunkx, chunky):
 
-		GRASS = "#"
-		MOUNTAIN = "@"
-		EMPTY = "."
+		GRASS = "grass"
+		MOUNTAIN = "mountain"
+		EMPTY = "void"
 
 		oct = 1
 
 		floor_void_diff = 0.3
 		mountain = floor_void_diff + 0.2
 
-		floor = str()
+		floor = {}
 		items = {}
 		chunk = (chunkx, chunky)
 
@@ -72,9 +79,9 @@ class WorldManager():
 						i = round(noise.pnoise2(x/15, y/15, octaves = oct, base=seedgen), 5)
 					if i >= floor_void_diff:
 						if i > mountain:
-							floor += MOUNTAIN
+							floor.update({(x, y) : MOUNTAIN})
 						else:
-							floor += GRASS
+							floor.update({(x, y) : GRASS})
 						spawner = random.randint(0, ITEM_SPAWN_RATIO)
 
 						if spawner == 0:
@@ -83,10 +90,9 @@ class WorldManager():
 							items.update({(x, y) : "A"})
 
 					elif i < floor_void_diff:
-						floor += EMPTY
+						floor.update({(x, y) : EMPTY})
 					else:
-						floor += EMPTY
-				floor += ":"
+						floor.update({(x, y) : EMPTY})
 
 			self.chunks.update({chunk : {"floor" : floor, "items" : items}})
 			self.unsaved += 1
@@ -129,20 +135,10 @@ class WorldManager():
 				# Generate a data bundle so it can be passed to the map loader
 				for index, type in enumerate(chunktoload):
 					if type == "floor":
-						x = 0
-						y = 0
 						for tile in chunktoload["floor"]:
+							floordata.append((chunktoload["floor"][tile], tile[0], tile[1]))
 
-							if y < CHUNKSIZE:
-								if x < CHUNKSIZE:
-									floordata.append((tile, x + chunkx * CHUNKSIZE, y + chunky * CHUNKSIZE))
-									x+=1
-								else:
-									y+=1
-									x=0
 					if type == "items":
-						x = 0
-						y = 0
 						for item in chunktoload["items"]:
 							itemdata.append((chunktoload["items"][item], item[0], item[1]))
 
